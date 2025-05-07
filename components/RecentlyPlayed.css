@@ -1,0 +1,10 @@
+.recently-played-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.recently-played-item {
+  margin: 10px;
+  text-align: center;
+}

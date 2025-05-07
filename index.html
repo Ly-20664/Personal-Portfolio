@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Justin Ly - Software Engineer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif; /* Restore the previous font */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Add theme-specific styles */
+        [data-theme="dark"] .project-card {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        [data-theme="light"] .project-card {
+            background-color: #f9f9f9;
+            color: #000000;
+        }
+
+        .project-card {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .recent-tracks {
+            padding: 20px;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .tracks-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .track {
+            display: flex;
+            align-items: center;
+            background-color: #282828;
+            border-radius: 10px;
+            padding: 10px;
+            gap: 15px;
+        }
+
+        .track img {
+            width: 60px;
+            height: 60px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .track-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .track-info strong {
+            font-size: 16px;
+            color: #ffffff;
+        }
+
+        .track-info em {
+            font-size: 14px;
+            color: #b3b3b3;
+        }
+
+        .track-duration {
+            font-size: 14px;
+            color: #b3b3b3;
+        }
+
+        .track-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .track-actions i {
+            color: #1db954;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo-container">
+                <a href="#home" style="text-decoration: none; color: inherit;">
+                    <img src="raw.png" alt="Justin Ly" class="logo-img">
+                    <span class="logo-text">Justin Ly</span>
+                </a>
+            </div>
+            <div class="nav-right">
+                <ul class="nav-links">
+                    <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#experience">Experience</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <button class="theme-toggle" aria-label="Toggle theme" id="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1>Hi, I'm Justin Ly</h1>
+                    <p>Software Engineer | Full Stack Developer | Problem Solver</p>
+                    <a href="#contact" class="cta-button">Get in Touch</a>
+                </div>
+                <div class="spotify-dashboard">
+                    <h2>My Recent Tracks</h2>
+                    <div id="spotify-embeds" class="spotify-embeds">
+                        <div class="loading-message">Loading your recent tracks...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <h2>About Me</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>Hey there! 👋 I'm a fresh UC Riverside grad with a Bachelor's in Computer Science and Business Applications, bringing energy and innovation to everything I code! When I'm not crafting efficient full-stack solutions or diving into new technologies, you'll find me on the pickleball court keeping my competitive spirit alive! I love combining my technical expertise with creative problem-solving to build applications that not only work great but bring joy to users. My journey in tech is fueled by curiosity and a passion for creating intuitive, scalable solutions that make a real impact.</p>
+                    <div class="skills">
+                        <h3>Technical Skills</h3>
+                        <ul>
+                            <li>Python</li>
+                            <li>C++</li>
+                            <li>Java</li>
+                            <li>JavaScript</li>
+                            <li>HTML</li>
+                            <li>Swift</li>
+                            <li>React.js</li>
+                            <li>Node.js</li>
+                            <li>PostgreSQL</li>
+                            <li>Git</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <img src="raw2.png" alt="Justin Ly Profile" class="profile-img">
+                </div>
+            </div>
+        </section>
+
+        <section id="experience" class="resume">
+            <h2>Experience</h2>
+            <div class="resume-content">
+                <div class="resume-section">
+                    <h3>Education</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-date">December 2024</div>
+                            <div class="timeline-content">
+                                <h4>Bachelor of Science, Computer Science W/ Business Applications</h4>
+                                <p>University of California Riverside</p>
+                                <p>Relevant Coursework: Data Structures, Object Oriented Programming, Software Construction, Discrete Mathematics, Machine Learning and Assembly Programming, Design of Operating Systems, Data Analysis, System Analysis and Design, Cybersecurity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="resume-section">
+                    <h3>Professional Experience</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-date">January 2023 - March 2023</div>
+                            <div class="timeline-content">
+                                <h4>Junior Sales Consultant</h4>
+                                <p>Get Smarter Solar | Pasadena, CA</p>
+                                <ul>
+                                    <li>Conducted door-to-door outreach to identify and qualify potential solar panel customers, highlighting savings and benefits.</li>
+                                    <li>Collaborated in weekly team meetings by sharing insights, coordinating schedules, and exchanging best practices, contributing to a high-energy, goal-focused sales environment.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-date">June 2021 - September 2021</div>
+                            <div class="timeline-content">
+                                <h4>Office Associate</h4>
+                                <p>Louie Properties Inc | Temple City, CA</p>
+                                <ul>
+                                    <li>Collaborated with team members to efficiently file and create documents for the leasing and management department.</li>
+                                    <li>Applied problem-solving skills to address and resolve unexpected challenges.</li>
+                                    <li>Demonstrated effective time management skills, ensuring tasks were completed within deadlines.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="resume-section">
+                    <h3>Certifications</h3>
+                    <div class="certifications">
+                        <div class="certification-item">
+                            <i class="fas fa-certificate"></i>
+                            <h4>AWS Certified Cloud Practitioner</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="projects">
+            <h2>My Projects</h2>
+            <div class="project-grid">
+                <div class="project-card">
+                    <img src="https://placehold.co/600x400/0a192f/64ffda?text=Calorie+Tracker" alt="Calorie Tracker">
+                    <h3>Calorie Tracker - iOS App</h3>
+                    <p>A calorie-tracking iOS application with dynamic daily resets, customizable calorie goals, and interactive calendar visualization. Built with Swift/UI.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Ly-20664/Calorie_Tracker" target="_blank"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://placehold.co/600x400/0a192f/64ffda?text=Spotify+Manager" alt="Spotify Playlist Manager">
+                    <h3>Spotify Playlist Manager</h3>
+                    <p>A web-based playlist management tool integrating Spotify's Web API with AI-driven music recommendations. Built with Python, Flask, and Spotify API.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Ly-20664/Spotify-Music-Player" target="_blank"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://placehold.co/600x400/0a192f/64ffda?text=Amazon+Store" alt="Amazon Storefront Database">
+                    <h3>Amazon Storefront Database</h3>
+                    <p>A backend system for a simulated online storefront using Java and PostgreSQL, managing data for 200 products and 500 orders.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Ly-20664/CS166_Final_Project" target="_blank"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <h2>Get in Touch</h2>
+            <div class="contact-content">
+                <form id="contact-form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-button">Send Message</button>
+                </form>
+                <div class="social-links">
+                    <h3>Connect With Me</h3>
+                    <div class="social-icons">
+                        <a href="https://github.com/Ly-20664" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/justinly20664/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="mailto:justinly0890@gmail.com"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Justin Ly. All rights reserved.</p>
+    </footer>
+
+    <!-- Load React -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+
+    <!-- Load EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <!-- Load your scripts -->
+    <script src="script.js"></script>
+    <script src="data_analysis.js" type="module"></script>
+
+</body>
+</html>
