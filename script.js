@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         applyTheme(newTheme);
     });
+
+    // Initialize EmailJS
+    if (window.emailjs) {
+        emailjs.init("_LM8I83-0fhkFg8Uq");
+    }
 });
 
 // EmailJS Contact Form Handling
@@ -43,15 +48,18 @@ if (contactForm) {
         const email = document.getElementById('email').value;
         const message = document.getElementById('message').value;
         
-        // Initialize EmailJS with your public key
-        emailjs.init("_LM8I83-0fhkFg8Uq");
-
-        // Send email using EmailJS
-        emailjs.send("service_g2xtlc8", "template_iou95lh", {
+        // Define template parameters
+        const templateParams = {
             from_name: name,
             from_email: email,
             message: message,
-        }).then(
+            to_name: "Justin Ly",  // Adding recipient name parameter
+            reply_to: email,       // Adding reply_to parameter
+        };
+
+        // Send email using EmailJS
+        emailjs.send("service_g2xtlc8", "template_iou95lh", templateParams)
+        .then(
             function(response) {
                 console.log("SUCCESS", response);
                 alert('Thank you for your message! I will get back to you soon.');
