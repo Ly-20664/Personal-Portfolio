@@ -1,20 +1,22 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: {
-    main: './App.jsx',
-  },
+  entry: './App.jsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
+    publicPath: '/'
   },
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
+    modules: [__dirname, 'node_modules'],
     alias: {
       components: path.resolve(__dirname, 'components'),
       frontend: path.resolve(__dirname, 'frontend'),
       backend: path.resolve(__dirname, 'backend'),
-    },
+      images: path.resolve(__dirname, 'images')
+    }
   },
   module: {
     rules: [
@@ -37,5 +39,11 @@ module.exports = {
         type: 'asset/resource'
       }
     ]
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './index.html',
+      filename: 'index.html'
+    })
+  ]
 };
