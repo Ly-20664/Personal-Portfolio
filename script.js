@@ -170,28 +170,67 @@ document.addEventListener('DOMContentLoaded', () => {
         : '<i class="fas fa-moon"></i>';
 });
 
-// Spotify recent tracks functionality
+// Check for authentication status
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authStatus = urlParams.get('auth');
+    const spotifyEmbedsContainer = document.getElementById('spotify-embeds');
+
+    if (authStatus === 'error') {
+        spotifyEmbedsContainer.innerHTML = `
+            <div class="error-message">
+                Failed to authenticate with Spotify. 
+                <button onclick="window.location.href='/api/spotify/auth-url'">Try Again</button>
+            </div>
+        `;
+    }
+
+    // Clear auth params from URL
+    if (authStatus) {
+        window.history.replaceState({}, document.title, '/');
+    }
+});
+
+// Modified loadRecentTracks function
 async function loadRecentTracks() {
     const spotifyEmbedsContainer = document.getElementById('spotify-embeds');
     
     try {
-        const response = await fetch('http://localhost:3000/recent-tracks');
-        if (response.status === 401) {
-            window.location.href = 'http://localhost:3000/login';
+        spotifyEmbedsContainer.innerHTML = '<div class="loading-message">Loading recent tracks...</div>';
+        
+        // Use the public endpoint that doesn't require authentication
+        const response = await fetch('/api/spotify/public/recent-tracks');
+        
+        if (response.status === 429) {
+            // Rate limiting - show friendly message with retry button
+            const data = await response.json();
+            const seconds = data.retryAfter || 30;
+            spotifyEmbedsContainer.innerHTML = `
+                <div class="error-message">
+                    Too many requests. Please try again in ${seconds} seconds.
+                    <button onclick="loadRecentTracks()" class="retry-button">Retry</button>
+                </div>
+            `;
             return;
         }
-
+        
         if (!response.ok) {
-            throw new Error('Failed to fetch recent tracks');
+            throw new Error(`Failed to fetch tracks: ${response.status} ${response.statusText}`);
         }
 
-        const tracks = await response.json();
-        
+        const data = await response.json();
+        if (!data.items || data.items.length === 0) {
+            throw new Error('No tracks found');
+        }
+
+        // Clear existing content
         spotifyEmbedsContainer.innerHTML = '';
 
+        // Create card container
         const cardContainer = document.createElement('div');
         cardContainer.className = 'track-card-container';
         
+        // Create navigation buttons
         const navigation = document.createElement('div');
         navigation.className = 'track-navigation';
         navigation.innerHTML = `
@@ -199,8 +238,9 @@ async function loadRecentTracks() {
             <button class="nav-button next-button"><i class="fas fa-chevron-right"></i></button>
         `;
 
-        const recentTracks = tracks.slice(0, 7);
-        recentTracks.forEach((track, index) => {
+        const recentTracks = data.items.slice(0, 7);
+        recentTracks.forEach((item, index) => {
+            const track = item.track;
             const card = document.createElement('div');
             card.className = `track-card ${index === 0 ? 'previous' : index === 1 ? 'active' : index === 2 ? 'next' : 'hidden'}`;
             
@@ -209,7 +249,7 @@ async function loadRecentTracks() {
             iframe.src = `https://open.spotify.com/embed/track/${track.id}?utm_source=generator&theme=0`;
             iframe.width = '100%';
             iframe.height = '100%';
-            iframe.allowFullscreen = true;
+            iframe.frameBorder = '0';
             iframe.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
             iframe.loading = 'lazy';
             
@@ -269,7 +309,12 @@ async function loadRecentTracks() {
 
     } catch (error) {
         console.error('Error loading recent tracks:', error);
-        spotifyEmbedsContainer.innerHTML = '<p class="error-message">Error loading recent tracks. Please try again later.</p>';
+        spotifyEmbedsContainer.innerHTML = `
+            <div class="error-message">
+                ${error.message || 'Error loading recent tracks'}
+                <button onclick="loadRecentTracks()" class="retry-button">Retry</button>
+            </div>
+        `;
     }
 }
 

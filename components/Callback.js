@@ -1,42 +1,31 @@
-import React, { useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Callback = () => {
+  const [status, setStatus] = useState('Processing authentication...');
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get('code');
-    axios.post('https://accounts.spotify.com/api/token', null, {
-      params: {
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: process.env.REACT_APP_REDIRECT_URI,
-        client_id: process.env.REACT_APP_SPOTIFY_CLIENT_ID,
-        client_secret: process.env.REACT_APP_SPOTIFY_CLIENT_SECRET, // Use environment variable for security
-      },
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    }).then(response => {
-      const { access_token } = response.data;
-      localStorage.setItem('access_token', access_token);
+    // The server already processed the code and set the tokens
+    // We just need to check the URL for errors or success
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    
+    if (error) {
+      setStatus('Authentication failed. Please try again.');
+      setTimeout(() => navigate('/'), 3000);
+    } else {
+      setStatus('Authentication successful! Redirecting...');
+      setTimeout(() => navigate('/'), 1500);
+    }
+  }, [navigate]);
 
-      // Fetch recent tracks
-      axios.get('https://api.spotify.com/v1/me/player/recently-played', {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      }).then(trackResponse => {
-        const recentTracks = trackResponse.data.items;
-        localStorage.setItem('recent_tracks', JSON.stringify(recentTracks));
-        window.location.href = '/dashboard';
-      }).catch(trackError => {
-        console.error('Error fetching recent tracks', trackError);
-      });
-    }).catch(error => {
-      console.error('Error fetching access token', error);
-    });
-  }, []);
-
-  return <div>Loading...</div>;
+  return (
+    <div className="callback-container" style={{ textAlign: 'center', marginTop: '50px' }}>
+      <h2>Spotify Authentication</h2>
+      <p>{status}</p>
+    </div>
+  );
 };
 
 export default Callback;

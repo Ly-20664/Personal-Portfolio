@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 const Login = () => {
-  const [authUrl, setAuthUrl] = useState('');
-
-  useEffect(() => {
-    // Fetch the auth URL from your backend
-    fetch('/api/spotify/auth-url')
-      .then(res => res.json())
-      .then(data => setAuthUrl(data.url))
-      .catch(err => console.error('Error fetching auth URL:', err));
-  }, []);
+  const handleLogin = () => {
+    // Redirect directly to the auth endpoint
+    window.location.href = '/api/spotify/auth-url';
+  };
 
   return (
     <div>
-      <a href={authUrl}>Login with Spotify</a>
+      <button onClick={handleLogin}>Login with Spotify</button>
     </div>
   );
 };
