@@ -32,8 +32,16 @@ const scopes = [
   'user-top-read'
 ];
 
-// Create authorization URL
-const authorizeURL = spotifyApi.createAuthorizeURL(scopes, 'state');
+// Create authorization URL directly to avoid path-to-regexp issues
+const spotifyBaseUrl = "https://accounts.spotify.com/authorize";
+const authorizeParams = new URLSearchParams({
+  client_id: CLIENT_ID,
+  response_type: 'code',
+  redirect_uri: REDIRECT_URI,
+  scope: scopes.join(' '),
+  state: 'state'
+});
+const authorizeURL = `${spotifyBaseUrl}?${authorizeParams.toString()}`;
 
 console.log('Opening browser for Spotify authorization...');
 console.log('Please login with your Spotify account and approve the permissions.');

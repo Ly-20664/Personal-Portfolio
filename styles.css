@@ -1228,3 +1228,25 @@ canvas {
     cursor: not-allowed;
     transform: none;
 }
+
+/* Spotify section styling */
+.recent-tracks {
+    /* ... existing code ... */
+}
+
+/* Add styling for the retry button */
+.retry-button {
+    background-color: var(--button-bg);
+    color: var(--bg-secondary);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-top: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.retry-button:hover {
+    background-color: var(--button-hover);
+}

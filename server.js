@@ -57,29 +57,17 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Secure static file serving - prioritize dist directory in production
-if (process.env.NODE_ENV === 'production') {
-    // In production, serve from dist directory first
-    app.use(express.static(path.join(__dirname, 'dist'), {
-        setHeaders: (res, path, stat) => {
-            // Allow font files to be loaded
-            if (path.endsWith('.woff') || path.endsWith('.woff2') || path.endsWith('.ttf') || path.endsWith('.eot')) {
-                res.set('Access-Control-Allow-Origin', '*');
-            }
-            res.set('X-Content-Type-Options', 'nosniff');
+// Secure static file serving
+app.use(express.static('.', {
+    setHeaders: (res, path, stat) => {
+        // Allow font files to be loaded
+        if (path.endsWith('.woff') || path.endsWith('.woff2') || path.endsWith('.ttf') || path.endsWith('.eot')) {
+            res.set('Access-Control-Allow-Origin', '*');
         }
-    }));
-} else {
-    // In development, serve from current directory and then dist
-    app.use(express.static('.', {
-        setHeaders: (res, path, stat) => {
-            if (path.endsWith('.woff') || path.endsWith('.woff2') || path.endsWith('.ttf') || path.endsWith('.eot')) {
-                res.set('Access-Control-Allow-Origin', '*');
-            }
-            res.set('X-Content-Type-Options', 'nosniff');
-        }
-    }));
-}
+        res.set('X-Content-Type-Options', 'nosniff');
+        res.set('X-Frame-Options', 'DENY');
+    }
+}))
 
 // Validate environment variables
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
@@ -304,8 +292,16 @@ app.get('/api/spotify/auth-url', (req, res) => {
         'user-top-read'
     ];
     
-    // Create the authorization URL
-    const authorizeURL = spotifyApi.createAuthorizeURL(scopes, 'state');
+    // Create the authorization URL directly to avoid path-to-regexp issues
+    const spotifyBaseUrl = "https://accounts.spotify.com/authorize";
+    const authorizeParams = new URLSearchParams({
+        client_id: CLIENT_ID,
+        response_type: 'code',
+        redirect_uri: REDIRECT_URI,
+        scope: scopes.join(' '),
+        state: 'state'
+    });
+    const authorizeURL = `${spotifyBaseUrl}?${authorizeParams.toString()}`;
     
     // Don't redirect, just render a page with the link
     res.send(`
@@ -381,9 +377,16 @@ app.get('/api/spotify/check-config', (req, res) => {
         'user-read-recently-played',
         'user-top-read'
     ];
-    
-    // Create the authorization URL
-    const authorizeURL = spotifyApi.createAuthorizeURL(scopes, 'state');
+      // Create the authorization URL - directly construct URL to avoid path-to-regexp issues
+    const spotifyBaseUrl = "https://accounts.spotify.com/authorize";
+    const authorizeParams = new URLSearchParams({
+        client_id: CLIENT_ID,
+        response_type: 'code',
+        redirect_uri: REDIRECT_URI,
+        scope: scopes.join(' '),
+        state: 'state'
+    });
+    const authorizeURL = `${spotifyBaseUrl}?${authorizeParams.toString()}`;
     
     res.send(`
         <h1>Spotify Configuration Check</h1>
@@ -417,8 +420,9 @@ app.get('/api/spotify/get-refresh-token-helper', (req, res) => {
         'user-top-read'
     ];
     
-    // Create the authorization URL using confirmed client ID
-    const spotifyAuthUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(scopes.join(' '))}`;
+    // Create the authorization URL using confirmed client ID - use base dashboard URL to avoid path-to-regexp issues
+    const spotifyBaseUrl = "https://accounts.spotify.com/authorize";
+    const spotifyAuthUrl = `${spotifyBaseUrl}?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(scopes.join(' '))}`;
     
     res.send(`
         <h1>Get Spotify Refresh Token</h1>
@@ -439,7 +443,7 @@ app.get('/api/spotify/get-refresh-token-helper', (req, res) => {
         <p>Make sure that:</p>
         <ul>
             <li>You're logged into the correct Spotify account.</li>
-            <li>Your app in the <a href="https://developer.spotify.com/dashboard/applications/${CLIENT_ID}" target="_blank">Spotify Developer Dashboard</a> has <code>${REDIRECT_URI}</code> set as a redirect URI.</li>
+            <li>Your app in the Spotify Developer Dashboard has <code>${REDIRECT_URI}</code> set as a redirect URI.</li>
             <li>Your app is properly set up with the correct client ID and client secret in your .env file.</li>
         </ul>
     `);
@@ -454,24 +458,7 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Serve the frontend for any non-API routes (for client-side routing)
-app.get('*', (req, res, next) => {
-    // Skip API routes
-    if (req.path.startsWith('/api')) {
-        return next();
-    }
-
-    // Send the index.html for client-side routing
-    if (process.env.NODE_ENV === 'production') {
-        const indexPath = path.join(__dirname, 'dist', 'index.html');
-        console.log(`Serving index.html from: ${indexPath}`);
-        res.sendFile(indexPath);
-    } else {
-        res.sendFile(path.join(__dirname, 'index.html'));
-    }
-});
-
-// 404 handler for API routes that weren't matched
+// 404 handler
 app.use((req, res) => {
     res.status(404).json({ error: 'Not Found' });
 });

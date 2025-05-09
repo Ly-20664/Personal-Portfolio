@@ -14,6 +14,40 @@ function applyTheme(theme) {
     updateThemeIcon(theme);
 }
 
+// Function to handle Spotify API errors
+function handleSpotifyErrors() {
+    const recentTracksContainer = document.querySelector('.recent-tracks');
+    const errorMessage = document.querySelector('.recent-tracks-error');
+    
+    if (recentTracksContainer && !errorMessage) {
+        // Check if there's an error message already in the container
+        if (recentTracksContainer.textContent.includes('Failed to fetch tracks')) {
+            console.log('Detected Spotify API error, attempting to retry...');
+            
+            // Create an error message container
+            const errorContainer = document.createElement('div');
+            errorContainer.classList.add('recent-tracks-error', 'error-message');
+            
+            // Extract the error message
+            const errorText = recentTracksContainer.textContent.trim();
+            errorContainer.textContent = errorText.replace(' Retry', '');
+            
+            // Create retry button
+            const retryButton = document.createElement('button');
+            retryButton.textContent = 'Retry';
+            retryButton.classList.add('retry-button');
+            retryButton.addEventListener('click', () => {
+                location.reload();
+            });
+            
+            // Clear the container and add the formatted error message
+            recentTracksContainer.innerHTML = '';
+            errorContainer.appendChild(retryButton);
+            recentTracksContainer.appendChild(errorContainer);
+        }
+    }
+}
+
 // Initialize theme on page load
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -24,8 +58,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         applyTheme(newTheme);
     });
-      // Social links section is active
+    
+    // Check for Spotify API errors
+    setTimeout(handleSpotifyErrors, 2000); // Wait for content to load
+    
+    // Social links section is active
     console.log("Social links section is active");
+    
+    // Check for Spotify errors after a short delay to ensure React has rendered
+    setTimeout(handleSpotifyErrors, 3000);
 });
 
 // Smooth scrolling for navigation links
