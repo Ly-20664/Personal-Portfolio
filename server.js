@@ -16,11 +16,12 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "accounts.spotify.com", "api.spotify.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "accounts.spotify.com", "api.spotify.com", "cdnjs.cloudflare.com", "cdn.jsdelivr.net"],
         connectSrc: ["'self'", "accounts.spotify.com", "api.spotify.com"],
         frameSrc: ["'self'", "accounts.spotify.com", "open.spotify.com"],
         imgSrc: ["'self'", "data:", "i.scdn.co", "open.spotify.com", "*"],
-        styleSrc: ["'self'", "'unsafe-inline'"]
+        styleSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "cdn.jsdelivr.net"],
+        fontSrc: ["'self'", "cdnjs.cloudflare.com", "cdn.jsdelivr.net", "fonts.gstatic.com"]
       }
     },
     crossOriginEmbedderPolicy: false,
@@ -39,12 +40,15 @@ const limiter = rateLimit({
     max: 100, // limit each IP to 100 requests per windowMs
     message: 'Too many requests from this IP, please try again later.'
 });
+
+// Load config with EmailJS settings
+const config = require('./config');
 app.use(limiter);
 
 // CORS configuration - updated to allow Spotify domains
 const corsOptions = {
     origin: process.env.NODE_ENV === 'production' 
-        ? ['https://justinly.me', 'https://accounts.spotify.com', 'https://api.spotify.com'] 
+        ? ['https://justinly.me', 'https://www.justinly.me', 'https://accounts.spotify.com', 'https://api.spotify.com'] 
         : ['http://localhost:3000', 'https://accounts.spotify.com', 'https://api.spotify.com'],
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -57,6 +61,10 @@ app.use(cors(corsOptions));
 // Secure static file serving
 app.use(express.static('.', {
     setHeaders: (res, path, stat) => {
+        // Allow font files to be loaded
+        if (path.endsWith('.woff') || path.endsWith('.woff2') || path.endsWith('.ttf') || path.endsWith('.eot')) {
+            res.set('Access-Control-Allow-Origin', '*');
+        }
         res.set('X-Content-Type-Options', 'nosniff');
         res.set('X-Frame-Options', 'DENY');
     }
@@ -65,7 +73,9 @@ app.use(express.static('.', {
 // Validate environment variables
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:3000/api/spotify/callback';
+const REDIRECT_URI = process.env.NODE_ENV === 'production' 
+    ? 'https://justinly.me/api/spotify/callback' 
+    : 'http://localhost:3000/api/spotify/callback';
 
 // You can hardcode your refresh token here if the environment variable is not set
 // Get this token from https://developer.spotify.com/dashboard by creating an app and getting a token
@@ -78,12 +88,15 @@ if (!CLIENT_ID || !CLIENT_SECRET) {
     process.exit(1);
 }
 
-// Configure DNS with secure defaults
-dns.setServers([
-    '8.8.8.8',
-    '8.8.4.4',
-    ...dns.getServers()
-]);
+// No DNS configuration in production to prevent DNS_HOSTNAME_RESOLVED_PRIVATE error
+if (process.env.NODE_ENV !== 'production') {
+    // Configure DNS with secure defaults - only in development
+    dns.setServers([
+        '8.8.8.8',
+        '8.8.4.4',
+        ...dns.getServers()
+    ]);
+}
 
 // Initialize Spotify API wrapper with the exact redirect URI
 const spotifyApi = new SpotifyWebApi({
@@ -112,16 +125,27 @@ let tokenExpirationTime = null;
 
 // Helper to persist refresh token to .env file
 function updateRefreshTokenEnv(token) {
-    const envPath = path.resolve(__dirname, '.env');
-    const envLines = fs.readFileSync(envPath, 'utf8').split('\n');
-    const key = 'SPOTIFY_REFRESH_TOKEN=';
-    const idx = envLines.findIndex(line => line.startsWith(key));
-    if (idx !== -1) {
-        envLines[idx] = `${key}${token}`;
-    } else {
-        envLines.push(`${key}${token}`);
+    try {
+        const envPath = path.resolve(__dirname, '.env');
+        // Check if file exists before trying to read it
+        if (fs.existsSync(envPath)) {
+            const envLines = fs.readFileSync(envPath, 'utf8').split('\n');
+            const key = 'SPOTIFY_REFRESH_TOKEN=';
+            const idx = envLines.findIndex(line => line.startsWith(key));
+            if (idx !== -1) {
+                envLines[idx] = `${key}${token}`;
+            } else {
+                envLines.push(`${key}${token}`);
+            }
+            fs.writeFileSync(envPath, envLines.join('\n'));
+            console.log('Refresh token updated in .env file');
+        } else {
+            console.warn('.env file not found, creating new one with refresh token');
+            fs.writeFileSync(envPath, `SPOTIFY_REFRESH_TOKEN=${token}\n`);
+        }
+    } catch (err) {
+        console.error('Error updating refresh token in .env:', err);
     }
-    fs.writeFileSync(envPath, envLines.join('\n'));
 }
 
 // Improved refreshAccessToken with better error handling and retry
@@ -426,13 +450,15 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    // Test connection to Spotify servers on startup
-    dns.resolve('accounts.spotify.com', (err) => {
-        if (err) {
-            console.error('Warning: Cannot resolve Spotify servers. Please check your internet connection or DNS settings.');
-        } else {
-            console.log('Successfully connected to Spotify servers');
-        }
-    });
-    console.log(`Server running on http://localhost:${PORT}`);
+    // Only test DNS connectivity in development mode
+    if (process.env.NODE_ENV !== 'production') {
+        dns.resolve('accounts.spotify.com', (err) => {
+            if (err) {
+                console.error('Warning: Cannot resolve Spotify servers. Please check your internet connection or DNS settings.');
+            } else {
+                console.log('Successfully connected to Spotify servers');
+            }
+        });
+    }
+    console.log(`Server running on port ${PORT}`);
 });

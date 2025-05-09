@@ -24,58 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         applyTheme(newTheme);
     });
-
-    // Initialize EmailJS
-    if (window.emailjs) {
-        emailjs.init("_LM8I83-0fhkFg8Uq");
-    }
+      // Social links section is active
+    console.log("Social links section is active");
 });
-
-// EmailJS Contact Form Handling
-const contactForm = document.getElementById('contact-form');
-if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Show loading state
-        const submitButton = contactForm.querySelector('.submit-button');
-        const originalButtonText = submitButton.textContent;
-        submitButton.textContent = 'Sending...';
-        submitButton.disabled = true;
-
-        // Get form values
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const message = document.getElementById('message').value;
-        
-        // Define template parameters
-        const templateParams = {
-            from_name: name,
-            from_email: email,
-            message: message,
-            to_name: "Justin Ly",  // Adding recipient name parameter
-            reply_to: email,       // Adding reply_to parameter
-        };
-
-        // Send email using EmailJS
-        emailjs.send("service_g2xtlc8", "template_iou95lh", templateParams)
-        .then(
-            function(response) {
-                console.log("SUCCESS", response);
-                alert('Thank you for your message! I will get back to you soon.');
-                contactForm.reset();
-            },
-            function(error) {
-                console.log("FAILED", error);
-                alert('Sorry, there was an error sending your message. Please try again.');
-            }
-        ).finally(() => {
-            // Reset button state
-            submitButton.textContent = originalButtonText;
-            submitButton.disabled = false;
-        });
-    });
-}
 
 // Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -98,14 +49,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateActiveLink() {
         let currentSection = null;
-
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.offsetHeight;
-            if (window.scrollY >= sectionTop - sectionHeight / 3) {
-                currentSection = section.getAttribute('id');
-            }
-        });
+        const windowBottom = window.scrollY + window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight;
+        
+        // Special case: if we're near the bottom of the page, activate the last section (Contact)
+        if (windowBottom >= docHeight - 150) {
+            currentSection = 'contact';
+        } else {
+            // Regular case: find which section we're currently viewing
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (window.scrollY >= sectionTop - sectionHeight / 3) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+        }
 
         navLinks.forEach(link => {
             link.classList.remove('active');
@@ -163,21 +122,6 @@ if (window.innerWidth <= 768) {
     });
 }
 
-// Remove all Spotify authentication code
-document.addEventListener('DOMContentLoaded', () => {
-    // Keep existing theme toggle and other functionality
-    const themeToggle = document.querySelector('.theme-toggle'); // Ensure correct selector
-    const htmlElement = document.documentElement;
-
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    htmlElement.setAttribute('data-theme', savedTheme);
-
-    // Set the correct icon based on the saved theme
-    themeToggle.innerHTML = savedTheme === 'dark' 
-        ? '<i class="fas fa-sun"></i>' 
-        : '<i class="fas fa-moon"></i>';
-});
-
 // Check for authentication status
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -199,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Modified loadRecentTracks function
+// Original loadRecentTracks function - reverting the modified version
 async function loadRecentTracks() {
     const spotifyEmbedsContainer = document.getElementById('spotify-embeds');
     
@@ -246,6 +190,7 @@ async function loadRecentTracks() {
             <button class="nav-button next-button"><i class="fas fa-chevron-right"></i></button>
         `;
 
+        // Changed from 3 to 7 tracks
         const recentTracks = data.items.slice(0, 7);
         recentTracks.forEach((item, index) => {
             const track = item.track;
