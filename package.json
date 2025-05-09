@@ -5,6 +5,7 @@
     "dotenv": "16.5.0",
     "express": "5.1.0",
     "express-rate-limit": "7.5.0",
+    "fs-extra": "^11.3.0",
     "helmet": "8.1.0",
     "qs": "6.14.0",
     "react": "18.2.0",
@@ -29,11 +30,11 @@
   "description": "A modern, responsive personal website template built with HTML, CSS, and JavaScript. This template includes sections for your introduction, about me, projects, and contact information.",
   "main": "server.js",
   "scripts": {
-    "start": "set NODE_ENV=production&& node server.js",
+    "start": "node server.js",
     "dev": "nodemon server.js",
     "client": "webpack serve --mode development",
     "build": "webpack --mode production",
-    "vercel-build": "webpack --mode production"
+    "vercel-build": "npm run build && node vercel-build.js"
   },
   "engines": {
     "node": ">=14.0.0"
