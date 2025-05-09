@@ -41,8 +41,7 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again later.'
 });
 
-// Load config with EmailJS settings
-const config = require('./config');
+// Apply rate limiter
 app.use(limiter);
 
 // CORS configuration - updated to allow Spotify domains
