@@ -62,9 +62,7 @@ const App = () => {
                 </button>
             </div>
         );
-    }
-
-    return (
+    }    return (
         <div>
             <SpotifyDisplay
                 nowPlaying={nowPlaying}
@@ -74,4 +72,4 @@ const App = () => {
     );
 };
 
-ReactDOM.render(<App />, document.getElementById("spotify-root"));
+ReactDOM.render(<App />, document.getElementById("spotify-embeds"));

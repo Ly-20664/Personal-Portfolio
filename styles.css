@@ -242,6 +242,16 @@ nav {
     font-weight: bold;
 }
 
+.spotify-embeds {
+    width: 100%;
+    position: relative;
+    min-height: 400px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
 /* Media query for mobile devices */
 @media (max-width: 1024px) {
     .hero-container {
