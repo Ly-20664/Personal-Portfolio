@@ -72,12 +72,12 @@ const App = () => {
                 
                 // Try to parse if there's a more specific error message from the API
                 let errorMessage = err.message;
-                try {
-                    if (err.response && err.response.data && err.response.data.error) {
+                try {                    if (err.response && err.response.data && err.response.data.error) {
                         errorMessage = err.response.data.error;
                     }
                 } catch (parseError) {
-                    // If parsing fails, use the original error message                }
+                    // If parsing fails, use the original error message                
+                }
                 
                 // Check if we're on Netlify with enhanced error detection
                 const isNetlify = window.location.hostname.includes('netlify.app');
