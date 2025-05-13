@@ -52,11 +52,11 @@
 <body>
     <h1>Spotify API Connection Test</h1>
     <p>Use this page to test your Spotify API connection on Netlify.</p>
-    
-    <div>
+      <div>
         <button id="testApiBtn">Test Spotify API Connection</button>
         <button id="testTopTracksBtn">Test Top Tracks Function</button>
         <button id="testNowPlayingBtn">Test Now Playing Function</button>
+        <button id="testRecentTracksBtn">Test Recent Tracks Function</button>
     </div>
     
     <div id="statusContainer"></div>
@@ -103,8 +103,7 @@
                     showStatus(`Failed to connect to ${endpoint}: ${error.message}`, false);
                 }
             }
-            
-            testApiBtn.addEventListener('click', () => {
+              testApiBtn.addEventListener('click', () => {
                 testEndpoint('/.netlify/functions/spotify-test');
             });
             
@@ -114,6 +113,10 @@
             
             testNowPlayingBtn.addEventListener('click', () => {
                 testEndpoint('/.netlify/functions/now-playing');
+            });
+            
+            testRecentTracksBtn.addEventListener('click', () => {
+                testEndpoint('/.netlify/functions/recent-tracks');
             });
         });
     </script>

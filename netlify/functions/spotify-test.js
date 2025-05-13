@@ -54,11 +54,11 @@ function generateHtmlResponse(data) {
     
     <p>If you're seeing errors, check your Netlify environment variables and make sure they're set correctly.</p>
     
-    <div class="test-links">
-      <h2>Test Other Endpoints</h2>
+    <div class="test-links">      <h2>Test Other Endpoints</h2>
       <ul>
         <li><a href="/.netlify/functions/top-tracks">Test Top Tracks Endpoint</a></li>
         <li><a href="/.netlify/functions/now-playing">Test Now Playing Endpoint</a></li>
+        <li><a href="/.netlify/functions/recent-tracks">Test Recent Tracks Endpoint</a></li>
       </ul>
     </div>
   </div>

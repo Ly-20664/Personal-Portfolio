@@ -53,9 +53,24 @@ const App = () => {
                     console.error(`Error response from recent-tracks: ${errorText}`);
                     throw new Error(`Failed to fetch recent tracks: ${ttResponse.status} - ${errorText.substring(0, 100)}...`);}
                   // Try to parse the JSON with better error handling
-                let ttData;
-                try {
-                    ttData = await ttResponse.json();
+                let ttData;                try {
+                    // Check if response text starts with '<', indicating HTML
+                    const responseText = await ttResponse.text();
+                    
+                    if (responseText.trim().startsWith('<')) {
+                        console.error("Received HTML instead of JSON from recent-tracks endpoint");
+                        console.error("First 100 chars:", responseText.substring(0, 100));
+                        
+                        // Instead of throwing, we can set an empty array to avoid breaking the UI
+                        console.log("Setting empty array for recent tracks to prevent UI error");
+                        setTopTracks([]);
+                        
+                        // Still throw for the error message display
+                        throw new Error(`Received HTML instead of JSON from recent-tracks endpoint. This is likely due to missing or invalid environment variables (SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN) on Netlify.`);
+                    }
+                    
+                    // Regular JSON parsing if we don't have HTML
+                    const ttData = JSON.parse(responseText);
                     console.log("Recent tracks data received:", JSON.stringify(ttData).substring(0, 100) + "...");
                     
                     // Validate the data before setting state
@@ -64,9 +79,16 @@ const App = () => {
                         setTopTracks(ttData);
                     } else {
                         console.error("Recent tracks data is not an array:", ttData);
+                        
+                        // Set empty array instead of throwing
+                        setTopTracks([]);
                         throw new Error("Invalid data format from recent-tracks endpoint");
                     }
-                } catch (jsonError) {                    console.error("Failed to parse JSON from recent-tracks:", jsonError);
+                } catch (jsonError) {
+                    console.error("Failed to parse data from recent-tracks:", jsonError);
+                    
+                    // Always set empty array to avoid UI breaking
+                    setTopTracks([]);
                     
                     // Specific handling for the Unexpected token '<' error (HTML response)
                     if (jsonError.message && jsonError.message.includes("Unexpected token '<'")) {
@@ -145,10 +167,9 @@ const App = () => {
             <SpotifyDisplay
                 nowPlaying={nowPlaying}
                 topTracks={topTracks}
-            />
-            <div className="spotify-test-section" style={{ marginTop: '20px', textAlign: 'center' }}>
+            />            <div className="spotify-test-section" style={{ marginTop: '20px', textAlign: 'center' }}>
                 <p style={{ fontSize: '14px', color: '#777' }}>
-                    Experiencing issues? 
+                    Experiencing issues?
                     <a 
                         href="/.netlify/functions/spotify-test" 
                         target="_blank" 
@@ -156,6 +177,15 @@ const App = () => {
                         style={{ marginLeft: '8px', color: '#1DB954', textDecoration: 'underline' }}
                     >
                         Test Spotify API Connection
+                    </a>
+                    <span style={{ margin: '0 8px' }}>|</span>
+                    <a 
+                        href="/recent-tracks-test.html" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        style={{ color: '#1DB954', textDecoration: 'underline' }}
+                    >
+                        Test Recent Tracks API
                     </a>
                 </p>
             </div>

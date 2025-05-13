@@ -50,6 +50,7 @@ module.exports = {
         { from: "styles.css", to: "" },
         { from: "script.js", to: "" },
         { from: "spotify-test.html", to: "" },
+        { from: "recent-tracks-test.html", to: "" },
         { from: "data_analysis.js", to: "" },
         { from: "raw.png", to: "" },
         { from: "raw2.png", to: "" }

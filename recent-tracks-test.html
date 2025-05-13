@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recent Tracks API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #1DB954;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #19a34b;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Recent Tracks API Test</h1>
+    <p>This page tests the recent-tracks Netlify function and analyzes the response.</p>
+    
+    <div>
+        <button id="testButton">Test Recent Tracks API</button>
+    </div>
+    
+    <div class="result">
+        <h2>Response Details:</h2>
+        <div id="status"></div>
+        <h3>Raw Response:</h3>
+        <pre id="rawResponse">Click the button above to test the API...</pre>
+        <h3>Parsed Data:</h3>
+        <pre id="parsedData"></pre>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const testButton = document.getElementById('testButton');
+            const statusDiv = document.getElementById('status');
+            const rawResponsePre = document.getElementById('rawResponse');
+            const parsedDataPre = document.getElementById('parsedData');
+            
+            testButton.addEventListener('click', async () => {
+                statusDiv.innerHTML = 'Testing API...';
+                rawResponsePre.textContent = 'Loading...';
+                parsedDataPre.textContent = '';
+                
+                try {
+                    // Get the current hostname
+                    const hostname = window.location.hostname;
+                    const isNetlify = hostname.includes('netlify.app');
+                    const apiUrl = isNetlify 
+                        ? '/.netlify/functions/recent-tracks'
+                        : 'http://localhost:3000/api/recent-tracks';
+                    
+                    statusDiv.innerHTML = `Fetching from: ${apiUrl}`;
+                    
+                    // Fetch the API
+                    const response = await fetch(apiUrl);
+                    const status = `Status: ${response.status} ${response.statusText}`;
+                    statusDiv.innerHTML = status;
+                    
+                    // Get the raw text
+                    const rawText = await response.text();
+                    rawResponsePre.textContent = rawText;
+                    
+                    // Check if it's HTML
+                    if (rawText.trim().startsWith('<')) {
+                        statusDiv.innerHTML += '<p class="error">⚠️ RECEIVED HTML INSTEAD OF JSON!</p>';
+                        parsedDataPre.textContent = 'Error: Received HTML instead of JSON. This is likely the cause of the "Unexpected token \'<\'" error.';
+                        return;
+                    }
+                    
+                    // Try to parse as JSON
+                    try {
+                        const jsonData = JSON.parse(rawText);
+                        statusDiv.innerHTML += '<p class="success">✅ Valid JSON response</p>';
+                        
+                        if (Array.isArray(jsonData)) {
+                            statusDiv.innerHTML += `<p>Received array with ${jsonData.length} items</p>`;
+                            
+                            // Check fields
+                            if (jsonData.length > 0) {
+                                const firstItem = jsonData[0];
+                                const requiredFields = ['songID', 'artist', 'title', 'album', 'albumArt', 'uri'];
+                                const missingFields = requiredFields.filter(field => !firstItem.hasOwnProperty(field));
+                                
+                                if (missingFields.length === 0) {
+                                    statusDiv.innerHTML += '<p class="success">✅ All required fields present</p>';
+                                } else {
+                                    statusDiv.innerHTML += `<p class="error">❌ Missing fields: ${missingFields.join(', ')}</p>`;
+                                }
+                            }
+                        } else {
+                            statusDiv.innerHTML += '<p class="error">❌ Response is not an array as expected</p>';
+                        }
+                        
+                        parsedDataPre.textContent = JSON.stringify(jsonData, null, 2);
+                    } catch (jsonError) {
+                        statusDiv.innerHTML += `<p class="error">❌ JSON parsing failed: ${jsonError.message}</p>`;
+                        parsedDataPre.textContent = `Error parsing JSON: ${jsonError.message}`;
+                    }
+                } catch (error) {
+                    statusDiv.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+                    rawResponsePre.textContent = error.toString();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
