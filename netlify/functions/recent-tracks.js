@@ -46,7 +46,6 @@ exports.handler = async function(event, context) {
       body: ''
     };
   }
-  
   try {
     // Get access token
     const accessToken = await getAccessToken();
@@ -67,7 +66,7 @@ exports.handler = async function(event, context) {
       statusCode: 200,
       headers,
       body: JSON.stringify(response.data)
-    };  } catch (error) {
+    };} catch (error) {
     console.error('Error fetching recent tracks:', error);
     
     // If the error is related to authorization, return an appropriate error status

@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './App.jsx',
@@ -8,6 +9,7 @@ module.exports = {
     filename: 'bundle.js',
     publicPath: '/'
   },
+  mode: 'production',
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
     modules: [__dirname, 'node_modules'],
@@ -39,11 +41,18 @@ module.exports = {
         type: 'asset/resource'
       }
     ]
-  },
-  plugins: [
+  },  plugins: [
     new HtmlWebpackPlugin({
       template: './index.html',
       filename: 'index.html'
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: "styles.css", to: "" },
+        { from: "script.js", to: "" },
+        { from: "data_analysis.js", to: "" },
+        { from: "raw.png", to: "" }
+      ]
     })
   ]
 };

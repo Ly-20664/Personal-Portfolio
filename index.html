@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
+<head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Justin Ly - Software Engineer</title>    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Justin Ly - Software Engineer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif; /* Restore the previous font */
@@ -126,10 +127,9 @@
                     <h1>Hi, I'm Justin Ly</h1>
                     <p>Software Engineer | Full Stack Developer | Problem Solver</p>
                     <a href="#contact" class="cta-button">Get in Touch</a>
-                </div>
-                <div class="spotify-dashboard">
+                </div>                <div class="spotify-dashboard">
                     <h2>My Recent Tracks</h2>
-                    <div id="spotify-embeds" class="spotify-embeds">
+                    <div id="spotify-root">
                         <div class="loading-message">Loading your recent tracks...</div>
                     </div>
                 </div>
@@ -279,12 +279,12 @@
     <footer>
         <p>&copy; 2025 Justin Ly. All rights reserved.</p>
     </footer>    <!-- Load React -->
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
     <!-- Load your scripts -->
     <script src="script.js"></script>
     <script src="data_analysis.js" type="module"></script>
+    <script src="bundle.js"></script>
 
 </body>
 </html>
