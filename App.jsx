@@ -54,9 +54,9 @@ const App = () => {
                     // Get the text response for better error diagnosis
                     const errorText = await ttResponse.text();
                     console.error(`Error response from top-tracks: ${errorText}`);
-                    throw new Error(`Failed to fetch top tracks: ${ttResponse.status} - ${errorText.substring(0, 100)}...`);
-                }
-                  // Try to parse the JSON with better error handling
+                    throw new Error(`Failed to fetch top tracks: ${ttResponse.status} - ${errorText.substring(0, 100)}...`);                }
+                
+                // Try to parse the JSON with better error handling
                 let ttData;
                 try {
                     ttData = await ttResponse.json();
@@ -77,13 +77,15 @@ const App = () => {
                 
                 // Try to parse if there's a more specific error message from the API
                 let errorMessage = err.message;
-                try {                    if (err.response && err.response.data && err.response.data.error) {
+                try {
+                    if (err.response && err.response.data && err.response.data.error) {
                         errorMessage = err.response.data.error;
                     }
                 } catch (parseError) {
                     // If parsing fails, use the original error message                
                 }
-                  // Check if we're on Netlify with enhanced error detection
+                
+                // Check if we're on Netlify with enhanced error detection
                 const isNetlify = window.location.hostname.includes('netlify.app');
                 console.log(`Error detected, running in Netlify: ${isNetlify}, Current retry: ${retryCount}`);
                 
@@ -135,13 +137,25 @@ const App = () => {
             </div>
         );
     }
-    
-    return (
+      return (
         <div>
             <SpotifyDisplay
                 nowPlaying={nowPlaying}
                 topTracks={topTracks}
             />
+            <div className="spotify-test-section" style={{ marginTop: '20px', textAlign: 'center' }}>
+                <p style={{ fontSize: '14px', color: '#777' }}>
+                    Experiencing issues? 
+                    <a 
+                        href="/.netlify/functions/spotify-test" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        style={{ marginLeft: '8px', color: '#1DB954', textDecoration: 'underline' }}
+                    >
+                        Test Spotify API Connection
+                    </a>
+                </p>
+            </div>
         </div>
     );
 };
