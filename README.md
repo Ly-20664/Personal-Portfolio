@@ -87,6 +87,42 @@ Required environment variables:
 - `EMAILJS_SERVICE_ID`
 - `EMAILJS_TEMPLATE_ID`
 
+## 🚀 Deploying to Netlify
+
+### Prerequisites
+- A Netlify account
+- Your project pushed to a Git repository (GitHub, GitLab, BitBucket)
+- Spotify API credentials (Client ID, Client Secret, Refresh Token)
+
+### Step 1: Configure Environment Variables
+For security reasons, environment variables are not included in your Git repository. Before deploying, you must add these variables to your Netlify site:
+
+1. Go to your Netlify dashboard
+2. Navigate to **Site settings** > **Build & deploy** > **Environment**
+3. Click on **Edit variables**
+4. Add the following environment variables:
+   - `SPOTIFY_CLIENT_ID` - Your Spotify application Client ID
+   - `SPOTIFY_CLIENT_SECRET` - Your Spotify application Client Secret
+   - `SPOTIFY_REFRESH_TOKEN` - Your Spotify API refresh token
+
+### Step 2: Connect to Git Repository
+1. In your Netlify dashboard, click **New site from Git**
+2. Select your Git provider (GitHub, GitLab, etc.)
+3. Select your repository
+4. Configure build settings:
+   - Build command: `npm run netlify:check && npm run build`
+   - Publish directory: `dist`
+
+### Step 3: Deploy
+1. Click **Deploy site**
+2. Wait for the build and deployment process to complete
+3. Your site will be accessible at the provided Netlify URL
+
+### Troubleshooting
+- If you see errors related to Spotify API, verify your environment variables are correctly set in Netlify
+- If you need a new refresh token, run: `node get-token.js` and follow the instructions
+- Check the Netlify function logs for any errors by going to **Functions** in your site dashboard
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
