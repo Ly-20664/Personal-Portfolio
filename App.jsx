@@ -52,11 +52,20 @@ const App = () => {
                     const errorText = await ttResponse.text();
                     console.error(`Error response from recent-tracks: ${errorText}`);
                     throw new Error(`Failed to fetch recent tracks: ${ttResponse.status} - ${errorText.substring(0, 100)}...`);}
-                
-                // Try to parse the JSON with better error handling
+                  // Try to parse the JSON with better error handling
                 let ttData;
                 try {
                     ttData = await ttResponse.json();
+                    console.log("Recent tracks data received:", JSON.stringify(ttData).substring(0, 100) + "...");
+                    
+                    // Validate the data before setting state
+                    if (Array.isArray(ttData)) {
+                        console.log(`Received ${ttData.length} recent tracks`);
+                        setTopTracks(ttData);
+                    } else {
+                        console.error("Recent tracks data is not an array:", ttData);
+                        throw new Error("Invalid data format from recent-tracks endpoint");
+                    }
                 } catch (jsonError) {                    console.error("Failed to parse JSON from recent-tracks:", jsonError);
                     
                     // Specific handling for the Unexpected token '<' error (HTML response)
@@ -66,8 +75,6 @@ const App = () => {
                         throw new Error(`Invalid JSON from recent-tracks: ${jsonError.message}`);
                     }
                 }
-                
-                setTopTracks(ttData);
             } catch (err) {
                 console.error("Error fetching Spotify data:", err);
                 

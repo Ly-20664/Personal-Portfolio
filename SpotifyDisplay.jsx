@@ -30,28 +30,30 @@ const SpotifyDisplay = ({ nowPlaying, topTracks }) => {
                             link={`https://open.spotify.com/track/${nowPlaying.id}`}
                             style={{ pointerEvents: 'none' }}
                         />
-                    </Fade>
-                </div>
-            ) : null}            {topTracks && topTracks.length > 0 ? (
+                    </Fade>                </div>
+            ) : null}
+              {topTracks && Array.isArray(topTracks) && topTracks.length > 0 ? (
                 <div className="top-tracks-container">
                     <Fade duration={1000} delay={1000} triggerOnce>
                         <p>My Recent Tracks</p>
                     </Fade>
                     {topTracks.map((track, i) => (
-                        <Fade
-                            direction="up"
-                            duration={1000}
-                            delay={1000 + i * 100}
-                            triggerOnce
-                            key={track.songID}
-                        >
-                            <Spotify
-                                className="track"
-                                wide
-                                link={`https://open.spotify.com/track/${track.songID}?theme=0&backgroundColor=transparent`}
-                                style={{ pointerEvents: 'none' }}
-                            />
-                        </Fade>
+                        track && track.songID ? (
+                            <Fade
+                                direction="up"
+                                duration={1000}
+                                delay={1000 + i * 100}
+                                triggerOnce
+                                key={track.songID || i}
+                            >
+                                <Spotify
+                                    className="track"
+                                    wide
+                                    link={`https://open.spotify.com/track/${track.songID}?theme=0&backgroundColor=transparent`}
+                                    style={{ pointerEvents: 'none' }}
+                                />
+                            </Fade>
+                        ) : null
                     ))}
                 </div>
             ) : null}

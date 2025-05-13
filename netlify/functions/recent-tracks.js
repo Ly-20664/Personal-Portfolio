@@ -72,16 +72,28 @@ exports.handler = async function(event, context) {
         'Authorization': `Bearer ${accessToken}`
       }
     });
+      // Format the response to match the expected structure for the SpotifyDisplay component
+    // Safely handle the response data
+    let formattedTracks = [];
     
-    // Format the response to match the expected structure for the SpotifyDisplay component
-    const formattedTracks = response.data.items.map(item => ({
-      songID: item.track.id,
-      artist: item.track.artists[0].name,
-      title: item.track.name,
-      album: item.track.album.name,
-      albumArt: item.track.album.images[0].url,
-      uri: item.track.uri
-    }));
+    try {
+      if (response.data && response.data.items && Array.isArray(response.data.items)) {
+        formattedTracks = response.data.items.map(item => ({
+          songID: item.track.id,
+          artist: item.track.artists[0].name,
+          title: item.track.name,
+          album: item.track.album.name,
+          albumArt: item.track.album.images[0].url,
+          uri: item.track.uri
+        }));
+      } else {
+        console.error('Unexpected response format from Spotify API', response.data);
+        throw new Error('Invalid response format from Spotify API');
+      }
+    } catch (formatError) {
+      console.error('Error formatting tracks:', formatError);
+      throw formatError;
+    }
     
     return {
       statusCode: 200,
