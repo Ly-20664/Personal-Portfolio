@@ -32,12 +32,10 @@ const SpotifyDisplay = ({ nowPlaying, topTracks }) => {
                         />
                     </Fade>
                 </div>
-            ) : null}
-
-            {topTracks && topTracks.length > 0 ? (
+            ) : null}            {topTracks && topTracks.length > 0 ? (
                 <div className="top-tracks-container">
                     <Fade duration={1000} delay={1000} triggerOnce>
-                        <p>Top Tracks This Month</p>
+                        <p>My Recent Tracks</p>
                     </Fade>
                     {topTracks.map((track, i) => (
                         <Fade

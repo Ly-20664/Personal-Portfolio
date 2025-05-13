@@ -41,33 +41,29 @@ const App = () => {
                     throw new Error(`Invalid JSON from now-playing: ${jsonError.message}`);
                 }
                 
-                setNowPlaying(npData);
-
-                // Top tracks - adapt based on environment with enhanced error handling
-                const ttEndpoint = isNetlify ? "/.netlify/functions/top-tracks" : "/api/top-tracks";
-                console.log(`Using top-tracks endpoint: ${ttEndpoint}`);
+                setNowPlaying(npData);                // Recent tracks - adapt based on environment with enhanced error handling
+                const ttEndpoint = isNetlify ? "/.netlify/functions/recent-tracks" : "/api/recent-tracks";
+                console.log(`Using recent-tracks endpoint: ${ttEndpoint}`);
                 
                 const ttResponse = await fetch(ttEndpoint);
-                console.log(`Top tracks response status: ${ttResponse.status}`);
+                console.log(`Recent tracks response status: ${ttResponse.status}`);
                 
-                if (!ttResponse.ok) {
-                    // Get the text response for better error diagnosis
+                if (!ttResponse.ok) {                    // Get the text response for better error diagnosis
                     const errorText = await ttResponse.text();
-                    console.error(`Error response from top-tracks: ${errorText}`);
-                    throw new Error(`Failed to fetch top tracks: ${ttResponse.status} - ${errorText.substring(0, 100)}...`);                }
+                    console.error(`Error response from recent-tracks: ${errorText}`);
+                    throw new Error(`Failed to fetch recent tracks: ${ttResponse.status} - ${errorText.substring(0, 100)}...`);}
                 
                 // Try to parse the JSON with better error handling
                 let ttData;
                 try {
                     ttData = await ttResponse.json();
-                } catch (jsonError) {
-                    console.error("Failed to parse JSON from top-tracks:", jsonError);
+                } catch (jsonError) {                    console.error("Failed to parse JSON from recent-tracks:", jsonError);
                     
                     // Specific handling for the Unexpected token '<' error (HTML response)
                     if (jsonError.message && jsonError.message.includes("Unexpected token '<'")) {
-                        throw new Error(`Invalid JSON from top-tracks: Received HTML instead of JSON - likely missing or invalid environment variables (SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN) on Netlify.`);
+                        throw new Error(`Invalid JSON from recent-tracks: Received HTML instead of JSON - likely missing or invalid environment variables (SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN) on Netlify.`);
                     } else {
-                        throw new Error(`Invalid JSON from top-tracks: ${jsonError.message}`);
+                        throw new Error(`Invalid JSON from recent-tracks: ${jsonError.message}`);
                     }
                 }
                 

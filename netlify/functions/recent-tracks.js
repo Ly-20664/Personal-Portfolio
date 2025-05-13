@@ -61,8 +61,7 @@ exports.handler = async function(event, context) {
   try {
     // Get access token
     const accessToken = await getAccessToken();
-    
-    // Fetch recently played tracks
+      // Fetch recently played tracks
     const response = await axios({
       method: 'get',
       url: 'https://api.spotify.com/v1/me/player/recently-played',
@@ -73,10 +72,21 @@ exports.handler = async function(event, context) {
         'Authorization': `Bearer ${accessToken}`
       }
     });
-      return {
+    
+    // Format the response to match the expected structure for the SpotifyDisplay component
+    const formattedTracks = response.data.items.map(item => ({
+      songID: item.track.id,
+      artist: item.track.artists[0].name,
+      title: item.track.name,
+      album: item.track.album.name,
+      albumArt: item.track.album.images[0].url,
+      uri: item.track.uri
+    }));
+    
+    return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(response.data)
+      body: JSON.stringify(formattedTracks)
     };
   } catch (error) {
     console.error('Error fetching recent tracks:', error);

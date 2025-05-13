@@ -76,7 +76,8 @@ exports.handler = async function(event, context) {
       }
     });
     
-    // Format the response to match the expected structure    const formattedTracks = response.data.items.map(track => ({
+    // Format the response to match the expected structure
+    const formattedTracks = response.data.items.map(track => ({
       songID: track.id,
       artist: track.artists[0].name,
       title: track.name,
