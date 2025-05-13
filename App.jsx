@@ -44,57 +44,73 @@ const App = () => {
                 setNowPlaying(npData);                // Recent tracks - adapt based on environment with enhanced error handling
                 const ttEndpoint = isNetlify ? "/.netlify/functions/recent-tracks" : "/api/recent-tracks";
                 console.log(`Using recent-tracks endpoint: ${ttEndpoint}`);
-                
-                const ttResponse = await fetch(ttEndpoint);
+                  const ttResponse = await fetch(ttEndpoint);
                 console.log(`Recent tracks response status: ${ttResponse.status}`);
                 
-                if (!ttResponse.ok) {                    // Get the text response for better error diagnosis
+                if (!ttResponse.ok) {
+                    // Get the text response for better error diagnosis
                     const errorText = await ttResponse.text();
                     console.error(`Error response from recent-tracks: ${errorText}`);
-                    throw new Error(`Failed to fetch recent tracks: ${ttResponse.status} - ${errorText.substring(0, 100)}...`);}
-                  // Try to parse the JSON with better error handling
-                let ttData;                try {
-                    // Check if response text starts with '<', indicating HTML
-                    const responseText = await ttResponse.text();
+                    setTopTracks([]); // Always set an empty array to prevent UI errors
+                    throw new Error(`Failed to fetch recent tracks: ${ttResponse.status} - ${errorText.substring(0, 100)}...`);
+                }
+                
+                // Try to parse the JSON with better error handling
+                let ttData;
+                
+                // Read the response as text first before trying to parse as JSON
+                const responseText = await ttResponse.text();
+                console.log(`Recent tracks response received (${responseText.length} chars)`);
+                
+                // Critical check: If the response looks like HTML (starts with '<'), handle it gracefully
+                if (responseText.trim().startsWith('<')) {
+                    console.error("Received HTML instead of JSON from recent-tracks endpoint");
+                    console.error("First 100 chars:", responseText.substring(0, 100));
                     
-                    if (responseText.trim().startsWith('<')) {
-                        console.error("Received HTML instead of JSON from recent-tracks endpoint");
-                        console.error("First 100 chars:", responseText.substring(0, 100));
+                    // Instead of throwing, we set an empty array to avoid breaking the UI
+                    console.log("Setting empty array for recent tracks to prevent UI error");
+                    setTopTracks([]);
+                    
+                    // Still throw for the error message display
+                    throw new Error(`Received HTML instead of JSON from recent-tracks endpoint. This is likely due to missing or invalid environment variables on Netlify.`);                    }
+                    
+                    try {
+                        // Regular JSON parsing if we don't have HTML
+                        const ttData = JSON.parse(responseText);
+                        console.log("Recent tracks data received:", JSON.stringify(ttData).substring(0, 100) + "...");
                         
-                        // Instead of throwing, we can set an empty array to avoid breaking the UI
-                        console.log("Setting empty array for recent tracks to prevent UI error");
+                        // Validate the data before setting state
+                        if (Array.isArray(ttData)) {
+                            console.log(`Received ${ttData.length} recent tracks`);
+                            // IMPORTANT: Always set the state before any potential errors
+                            setTopTracks(ttData);
+                        } else {
+                            console.error("Recent tracks data is not an array:", ttData);
+                            // Set empty array for non-array data
+                            setTopTracks([]);
+                            // Don't throw here - just log the error and continue
+                            console.error("Invalid data format from recent-tracks endpoint - expected array");
+                        }
+                    } catch (jsonError) {
+                        console.error("Failed to parse data from recent-tracks:", jsonError);
+                        
+                        // ALWAYS set empty array to prevent UI from breaking
                         setTopTracks([]);
                         
-                        // Still throw for the error message display
-                        throw new Error(`Received HTML instead of JSON from recent-tracks endpoint. This is likely due to missing or invalid environment variables (SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN) on Netlify.`);
-                    }
-                    
-                    // Regular JSON parsing if we don't have HTML
-                    const ttData = JSON.parse(responseText);
-                    console.log("Recent tracks data received:", JSON.stringify(ttData).substring(0, 100) + "...");
-                    
-                    // Validate the data before setting state
-                    if (Array.isArray(ttData)) {
-                        console.log(`Received ${ttData.length} recent tracks`);
-                        setTopTracks(ttData);
-                    } else {
-                        console.error("Recent tracks data is not an array:", ttData);
-                        
-                        // Set empty array instead of throwing
-                        setTopTracks([]);
-                        throw new Error("Invalid data format from recent-tracks endpoint");
+                        // Don't throw here - browser will continue without breaking the UI
+                        console.error(`JSON parse error: ${jsonError.message}`);
                     }
                 } catch (jsonError) {
-                    console.error("Failed to parse data from recent-tracks:", jsonError);
+                    console.error("Failed in response text handling:", jsonError);
                     
-                    // Always set empty array to avoid UI breaking
+                    // Absolutely ensure we always set topTracks to prevent UI errors
                     setTopTracks([]);
                     
                     // Specific handling for the Unexpected token '<' error (HTML response)
                     if (jsonError.message && jsonError.message.includes("Unexpected token '<'")) {
-                        throw new Error(`Invalid JSON from recent-tracks: Received HTML instead of JSON - likely missing or invalid environment variables (SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN) on Netlify.`);
+                        throw new Error(`Invalid JSON from recent-tracks: Received HTML instead of JSON - check your environment variables on Netlify.`);
                     } else {
-                        throw new Error(`Invalid JSON from recent-tracks: ${jsonError.message}`);
+                        throw new Error(`Error processing recent-tracks: ${jsonError.message}`);
                     }
                 }
             } catch (err) {
