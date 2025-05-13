@@ -6,9 +6,7 @@ const App = () => {
     const [nowPlaying, setNowPlaying] = useState(null);
     const [topTracks, setTopTracks] = useState([]);
     const [error, setError] = useState(null);
-    const [retryCount, setRetryCount] = useState(0);
-
-    useEffect(() => {
+    const [retryCount, setRetryCount] = useState(0);    useEffect(() => {
         const fetchData = async () => {
             try {
                 // Now playing
@@ -25,7 +23,8 @@ const App = () => {
                     throw new Error(`Failed to fetch top tracks: ${ttResponse.status}`);
                 }
                 const ttData = await ttResponse.json();
-                setTopTracks(ttData);            } catch (err) {
+                setTopTracks(ttData);
+            } catch (err) {
                 console.error("Error fetching Spotify data:", err);
                 
                 // Try to parse if there's a more specific error message from the API
@@ -47,10 +46,10 @@ const App = () => {
                     }, 5000);
                 }
             }
-        };
-
-        fetchData();
-    }, [retryCount]);    if (error) {
+        };        fetchData();
+    }, [retryCount]);
+    
+    if (error) {
         return (
             <div className="error-message">
                 Error: {error.replace(" Retry", "")}
@@ -59,10 +58,11 @@ const App = () => {
                     onClick={() => setRetryCount(prev => prev + 1)}
                 >
                     Retry
-                </button>
-            </div>
+                </button>            </div>
         );
-    }    return (
+    }
+    
+    return (
         <div>
             <SpotifyDisplay
                 nowPlaying={nowPlaying}

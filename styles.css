@@ -1190,9 +1190,21 @@ canvas {
 /* Error Message */
 .error-message {
     background-color: rgba(64, 224, 208, 0.1);
-    padding: 1rem;
+    padding: 1.5rem;
     border-radius: 8px;
     text-align: center;
+    margin-bottom: 1rem;
+}
+
+.error-message h3 {
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.error-message p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.5;
 }
 
 /* Track Navigation */
@@ -1241,7 +1253,9 @@ canvas {
 
 /* Spotify section styling */
 .recent-tracks {
-    /* ... existing code ... */
+    padding: 20px;
+    background-color: #121212;
+    color: #ffffff;
 }
 
 /* Add styling for the retry button */

@@ -30,8 +30,7 @@ async function getAccessToken() {
   }
 }
 
-exports.handler = async function(event, context) {
-  // Set CORS headers
+exports.handler = async function(event, context) {  // Set CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',

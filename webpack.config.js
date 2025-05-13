@@ -45,8 +45,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './index.html',
       filename: 'index.html'
-    }),
-    new CopyPlugin({
+    }),    new CopyPlugin({
       patterns: [
         { from: "styles.css", to: "" },
         { from: "script.js", to: "" },
