@@ -50,7 +50,8 @@ module.exports = {
         { from: "styles.css", to: "" },
         { from: "script.js", to: "" },
         { from: "data_analysis.js", to: "" },
-        { from: "raw.png", to: "" }
+        { from: "raw.png", to: "" },
+        { from: "raw2.png", to: "" }
       ]
     })
   ]

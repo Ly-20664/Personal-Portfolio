@@ -30,7 +30,8 @@ async function getAccessToken() {
   }
 }
 
-exports.handler = async function(event, context) {  // Set CORS headers
+exports.handler = async function(event, context) {
+  // Set CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -72,12 +73,12 @@ exports.handler = async function(event, context) {  // Set CORS headers
       albumArt: track.album.images[0].url,
       uri: track.uri
     }));
-    
-    return {
+      return {
       statusCode: 200,
       headers,
       body: JSON.stringify(formattedTracks)
-    };  } catch (error) {
+    };
+  } catch (error) {
     console.error('Error fetching top tracks:', error);
     
     // If the error is related to authorization, return an appropriate error status

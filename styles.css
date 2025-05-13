@@ -1252,6 +1252,40 @@ canvas {
 }
 
 /* Spotify section styling */
+.spotify-dashboard {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: var(--bg-secondary);
+    border-radius: 10px;
+    width: 100%;
+}
+
+.spotify-embeds {
+    width: 100%;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.loading-message {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 1rem;
+}
+
+.spotify-embeds iframe {
+    width: 100% !important;
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.now-playing-track iframe,
+.track iframe {
+    border: none !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
 .recent-tracks {
     padding: 20px;
     background-color: #121212;

@@ -30,7 +30,8 @@ async function getAccessToken() {
   }
 }
 
-exports.handler = async function(event, context) {  // Set CORS headers
+exports.handler = async function(event, context) {
+  // Set CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -60,12 +61,12 @@ exports.handler = async function(event, context) {  // Set CORS headers
         'Authorization': `Bearer ${accessToken}`
       }
     });
-    
-    return {
+      return {
       statusCode: 200,
       headers,
       body: JSON.stringify(response.data)
-    };} catch (error) {
+    };
+  } catch (error) {
     console.error('Error fetching recent tracks:', error);
     
     // If the error is related to authorization, return an appropriate error status

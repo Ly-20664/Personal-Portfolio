@@ -6,19 +6,23 @@ const App = () => {
     const [nowPlaying, setNowPlaying] = useState(null);
     const [topTracks, setTopTracks] = useState([]);
     const [error, setError] = useState(null);
-    const [retryCount, setRetryCount] = useState(0);    useEffect(() => {
+    const [retryCount, setRetryCount] = useState(0);
+    
+    useEffect(() => {
         const fetchData = async () => {
-            try {
-                // Now playing
-                const npResponse = await fetch("/api/now-playing");
+            try {                // Now playing - adapt based on environment
+                const isNetlify = window.location.hostname.includes('netlify.app');
+                const npEndpoint = isNetlify ? "/.netlify/functions/now-playing" : "/api/now-playing";
+                const npResponse = await fetch(npEndpoint);
                 if (!npResponse.ok) {
                     throw new Error(`Failed to fetch now playing: ${npResponse.status}`);
                 }
                 const npData = await npResponse.json();
                 setNowPlaying(npData);
 
-                // Top tracks
-                const ttResponse = await fetch("/api/top-tracks");
+                // Top tracks - adapt based on environment
+                const ttEndpoint = isNetlify ? "/.netlify/functions/top-tracks" : "/api/top-tracks";
+                const ttResponse = await fetch(ttEndpoint);
                 if (!ttResponse.ok) {
                     throw new Error(`Failed to fetch top tracks: ${ttResponse.status}`);
                 }
@@ -36,17 +40,25 @@ const App = () => {
                 } catch (parseError) {
                     // If parsing fails, use the original error message
                 }
-                
-                setError(`Failed to fetch tracks: ${errorMessage} Retry`);
+                  // Check if we're on Netlify 
+                const isNetlify = window.location.hostname.includes('netlify.app');
+                if (isNetlify && (errorMessage.includes('404') || errorMessage.includes('403'))) {
+                    setError(`Failed to fetch tracks: ${errorMessage}. Make sure Netlify environment variables are configured correctly. Retry`);
+                } else {
+                    setError(`Failed to fetch tracks: ${errorMessage} Retry`);
+                }
                 
                 // Auto-retry after 5 seconds if we haven't tried too many times
-                if (retryCount < 3) {
+                // Use more retries on Netlify since it might need time to initialize
+                const maxRetries = isNetlify ? 5 : 3;
+                if (retryCount < maxRetries) {
                     setTimeout(() => {
                         setRetryCount(prev => prev + 1);
                     }, 5000);
-                }
-            }
-        };        fetchData();
+                }}
+        };
+        
+        fetchData();
     }, [retryCount]);
     
     if (error) {
@@ -58,7 +70,8 @@ const App = () => {
                     onClick={() => setRetryCount(prev => prev + 1)}
                 >
                     Retry
-                </button>            </div>
+                </button>
+            </div>
         );
     }
     
