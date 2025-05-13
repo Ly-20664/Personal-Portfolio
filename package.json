@@ -37,6 +37,9 @@
     "build": "webpack --mode production",
     "vercel-build": "npm run build",
     "netlify:check": "node netlify-check.js",
+    "netlify:debug": "node netlify-debug.js",
+    "netlify:build": "node prepare-netlify.js",
+    "netlify:test-functions": "node test-netlify-functions.js",
     "prebuild": "npm run netlify:check"
   },
   "engines": {

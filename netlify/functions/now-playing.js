@@ -2,14 +2,35 @@
 const axios = require('axios');
 require('dotenv').config();
 
-// Spotify API credentials
+// Spotify API credentials - with validation
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
 
+// Validate environment variables
+if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
+  console.error('Missing required environment variables:',
+    !CLIENT_ID ? 'SPOTIFY_CLIENT_ID' : '',
+    !CLIENT_SECRET ? 'SPOTIFY_CLIENT_SECRET' : '',
+    !REFRESH_TOKEN ? 'SPOTIFY_REFRESH_TOKEN' : ''
+  );
+}
+
 // Get a new access token using the refresh token
 async function getAccessToken() {
   try {
+    // Validate credentials before making the request
+    if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
+      const missing = [];
+      if (!CLIENT_ID) missing.push('CLIENT_ID');
+      if (!CLIENT_SECRET) missing.push('CLIENT_SECRET');
+      if (!REFRESH_TOKEN) missing.push('REFRESH_TOKEN');
+      
+      throw new Error(`Missing required Spotify credentials: ${missing.join(', ')}`);
+    }
+    
+    console.log('Attempting to get Spotify access token');
+    
     const response = await axios({
       method: 'post',
       url: 'https://accounts.spotify.com/api/token',
@@ -23,10 +44,25 @@ async function getAccessToken() {
       }
     });
     
+    if (!response.data || !response.data.access_token) {
+      console.error('Spotify token response missing access_token:', JSON.stringify(response.data));
+      throw new Error('Invalid response from Spotify token API');
+    }
+    
+    console.log('Successfully obtained Spotify access token');
     return response.data.access_token;
   } catch (error) {
-    console.error('Error getting access token:', error);
-    throw new Error('Failed to get access token');
+    console.error('Error getting access token:', error.message);
+    
+    if (error.response) {
+      console.error('Spotify API error details:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      });
+    }
+    
+    throw new Error(`Failed to get access token: ${error.message}`);
   }
 }
 
@@ -35,7 +71,8 @@ exports.handler = async function(event, context) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Content-Type': 'application/json'
   };
   
   // Handle preflight OPTIONS request
@@ -47,11 +84,31 @@ exports.handler = async function(event, context) {
     };
   }
   
+  // Early validation of environment variables
+  if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
+    console.error('Missing required environment variables in handler');
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ 
+        error: 'Server configuration error: Missing Spotify credentials',
+        missingVars: {
+          clientId: !CLIENT_ID,
+          clientSecret: !CLIENT_SECRET,
+          refreshToken: !REFRESH_TOKEN
+        }
+      })
+    };
+  }
+  
   try {
+    console.log('Handler started, attempting to get access token');
     // Get access token
     const accessToken = await getAccessToken();
+    console.log('Access token retrieved successfully');
     
     // Fetch currently playing track
+    console.log('Fetching currently playing track from Spotify API');
     const response = await axios({
       method: 'get',
       url: 'https://api.spotify.com/v1/me/player/currently-playing',
@@ -84,8 +141,7 @@ exports.handler = async function(event, context) {
       statusCode: 200,
       headers,
       body: JSON.stringify(formattedResponse)
-    };
-  } catch (error) {
+    };  } catch (error) {
     console.error('Error fetching now playing:', error);
     
     // If the error is related to authorization, return an appropriate error status
@@ -93,7 +149,10 @@ exports.handler = async function(event, context) {
       return {
         statusCode: error.response.status,
         headers,
-        body: JSON.stringify({ error: 'Authorization failed, check your Spotify tokens' })
+        body: JSON.stringify({ 
+          error: 'Authorization failed, check your Spotify tokens',
+          details: error.message 
+        })
       };
     }
     
@@ -102,15 +161,36 @@ exports.handler = async function(event, context) {
       return {
         statusCode: error.response.status,
         headers,
-        body: JSON.stringify({ error: `Spotify API error: ${error.response.statusText}` })
+        body: JSON.stringify({ 
+          error: `Spotify API error: ${error.response.statusText}`,
+          details: error.message,
+          data: error.response.data
+        })
       };
     }
     
-    // For network errors or other cases, still return 200 to avoid breaking the UI
+    // Handle getAccessToken specific errors
+    if (error.message === 'Failed to get access token') {
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ 
+          error: 'Failed to get Spotify access token',
+          details: 'Check your Spotify credentials in Netlify environment variables',
+          message: error.message
+        })
+      };
+    }
+    
+    // For network errors or other cases
     return {
-      statusCode: 200,  
+      statusCode: 500,  
       headers,
-      body: JSON.stringify(null)
+      body: JSON.stringify({ 
+        error: 'Server error when fetching Spotify data',
+        details: error.message,
+        stack: process.env.NODE_ENV === 'production' ? null : error.stack
+      })
     };
   }
 };
