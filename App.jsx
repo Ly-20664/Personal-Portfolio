@@ -77,8 +77,9 @@ const App = () => {
                         errorMessage = err.response.data.error;
                     }
                 } catch (parseError) {
-                    // If parsing fails, use the original error message
-                }                  // Check if we're on Netlify with enhanced error detection
+                    // If parsing fails, use the original error message                }
+                
+                // Check if we're on Netlify with enhanced error detection
                 const isNetlify = window.location.hostname.includes('netlify.app');
                 console.log(`Error detected, running in Netlify: ${isNetlify}, Current retry: ${retryCount}`);
                 
@@ -110,6 +111,7 @@ const App = () => {
                 } else {
                     console.log('Maximum retries reached, giving up');
                 }
+            }
         };
         
         fetchData();
