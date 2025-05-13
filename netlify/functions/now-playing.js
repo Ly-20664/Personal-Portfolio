@@ -14,6 +14,9 @@ if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
     !CLIENT_SECRET ? 'SPOTIFY_CLIENT_SECRET' : '',
     !REFRESH_TOKEN ? 'SPOTIFY_REFRESH_TOKEN' : ''
   );
+  
+  // Instead of just logging, throw an error that will be caught by the handler
+  throw new Error('Missing required Spotify environment variables');
 }
 
 // Get a new access token using the refresh token

@@ -2,10 +2,22 @@
 const axios = require('axios');
 require('dotenv').config();
 
-// Spotify API credentials
+// Spotify API credentials - with validation
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
+
+// Validate environment variables
+if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
+  console.error('Missing required environment variables:',
+    !CLIENT_ID ? 'SPOTIFY_CLIENT_ID' : '',
+    !CLIENT_SECRET ? 'SPOTIFY_CLIENT_SECRET' : '',
+    !REFRESH_TOKEN ? 'SPOTIFY_REFRESH_TOKEN' : ''
+  );
+  
+  // Instead of just logging, throw an error that will be caught by the handler
+  throw new Error('Missing required Spotify environment variables');
+}
 
 // Get a new access token using the refresh token
 async function getAccessToken() {

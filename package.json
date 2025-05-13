@@ -40,6 +40,7 @@
     "netlify:debug": "node netlify-debug.js",
     "netlify:build": "node prepare-netlify.js",
     "netlify:test-functions": "node test-netlify-functions.js",
+    "spotify:debug": "node test-spotify-api.js",
     "prebuild": "npm run netlify:check"
   },
   "engines": {

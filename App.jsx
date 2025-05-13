@@ -56,14 +56,19 @@ const App = () => {
                     console.error(`Error response from top-tracks: ${errorText}`);
                     throw new Error(`Failed to fetch top tracks: ${ttResponse.status} - ${errorText.substring(0, 100)}...`);
                 }
-                
-                // Try to parse the JSON with better error handling
+                  // Try to parse the JSON with better error handling
                 let ttData;
                 try {
                     ttData = await ttResponse.json();
                 } catch (jsonError) {
                     console.error("Failed to parse JSON from top-tracks:", jsonError);
-                    throw new Error(`Invalid JSON from top-tracks: ${jsonError.message}`);
+                    
+                    // Specific handling for the Unexpected token '<' error (HTML response)
+                    if (jsonError.message && jsonError.message.includes("Unexpected token '<'")) {
+                        throw new Error(`Invalid JSON from top-tracks: Received HTML instead of JSON - likely missing or invalid environment variables (SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN) on Netlify.`);
+                    } else {
+                        throw new Error(`Invalid JSON from top-tracks: ${jsonError.message}`);
+                    }
                 }
                 
                 setTopTracks(ttData);
@@ -78,21 +83,21 @@ const App = () => {
                 } catch (parseError) {
                     // If parsing fails, use the original error message                
                 }
-                
-                // Check if we're on Netlify with enhanced error detection
+                  // Check if we're on Netlify with enhanced error detection
                 const isNetlify = window.location.hostname.includes('netlify.app');
                 console.log(`Error detected, running in Netlify: ${isNetlify}, Current retry: ${retryCount}`);
                 
                 // Better error message based on error content
                 if (isNetlify) {
                     if (errorMessage.includes('Invalid JSON') || errorMessage.includes('Unexpected token')) {
-                        setError(`Error parsing Spotify data: The API might be returning HTML instead of JSON. This typically happens when Netlify functions are not properly configured. Check environment variables and function permissions. Retry`);
+                        console.error('JSON parsing error details:', errorMessage);
+                        setError(`Error parsing Spotify data: The API returned HTML instead of JSON. This typically happens when environment variables are missing or invalid on Netlify. Check your SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, and SPOTIFY_REFRESH_TOKEN settings. Retry`);
                     } else if (errorMessage.includes('404') || errorMessage.includes('403')) {
                         setError(`Failed to fetch tracks: ${errorMessage}. Make sure Netlify environment variables are configured correctly. Retry`);
                     } else if (errorMessage.includes('500')) {
                         setError(`Server error: ${errorMessage}. The Netlify function might be encountering an internal error. Check function logs. Retry`);
                     } else {
-                        setError(`Failed to fetch tracks in Netlify environment: ${errorMessage}. Retry`);
+                        setError(`Failed to fetch tracks in Netlify environment: ${errorMessage}. Check Netlify function logs for more details. Retry`);
                     }
                 } else {
                     setError(`Failed to fetch tracks: ${errorMessage}. Retry`);

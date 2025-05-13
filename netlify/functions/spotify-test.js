@@ -1,8 +1,8 @@
-// Netlify function for fetching top tracks
+// Netlify function to test Spotify API connection
 const axios = require('axios');
 require('dotenv').config();
 
-// Spotify API credentials - with validation
+// Spotify API credentials
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
@@ -15,7 +15,6 @@ if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
     !REFRESH_TOKEN ? 'SPOTIFY_REFRESH_TOKEN' : ''
   );
   
-  // Instead of just logging, throw an error that will be caught by the handler
   throw new Error('Missing required Spotify environment variables');
 }
 
@@ -38,7 +37,7 @@ async function getAccessToken() {
     return response.data.access_token;
   } catch (error) {
     console.error('Error getting access token:', error);
-    throw new Error('Failed to get access token');
+    throw new Error(`Failed to get access token: ${error.message}`);
   }
 }
 
@@ -60,62 +59,49 @@ exports.handler = async function(event, context) {
   }
   
   try {
-    // Get access token
-    const accessToken = await getAccessToken();
+    // Get environment variable values but hide the actual token values
+    const envVarStatus = {
+      SPOTIFY_CLIENT_ID: CLIENT_ID ? `Set (${CLIENT_ID.substring(0, 5)}...${CLIENT_ID.substring(CLIENT_ID.length-5)})` : 'Not set',
+      SPOTIFY_CLIENT_SECRET: CLIENT_SECRET ? 'Set (hidden)' : 'Not set',
+      SPOTIFY_REFRESH_TOKEN: REFRESH_TOKEN ? `Set (${REFRESH_TOKEN.substring(0, 5)}...hidden...)` : 'Not set',
+    };
     
-    // Fetch top tracks
-    const response = await axios({
-      method: 'get',
-      url: 'https://api.spotify.com/v1/me/top/tracks',
-      params: {
-        time_range: 'short_term',  // last 4 weeks
-        limit: 5                   // top 5 tracks
-      },
-      headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
-    });
+    // Try to get an access token to verify Spotify API connectivity
+    let tokenStatus = 'Unknown';
+    let accessToken = '';
     
-    // Format the response to match the expected structure    const formattedTracks = response.data.items.map(track => ({
-      songID: track.id,
-      artist: track.artists[0].name,
-      title: track.name,
-      album: track.album.name,
-      albumArt: track.album.images[0].url,
-      uri: track.uri
-    }));
+    try {
+      accessToken = await getAccessToken();
+      tokenStatus = 'Success';
+    } catch (tokenError) {
+      tokenStatus = `Failed: ${tokenError.message}`;
+    }
     
+    // Return diagnostic information
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(formattedTracks)
+      body: JSON.stringify({
+        status: 'Spotify API diagnostic information',
+        environment: process.env.NODE_ENV || 'unknown',
+        timestamp: new Date().toISOString(),
+        envVars: envVarStatus,
+        tokenGeneration: tokenStatus,
+        tokenWorks: tokenStatus === 'Success',
+        netlifyContext: process.env.CONTEXT || 'unknown'
+      })
     };
   } catch (error) {
-    console.error('Error fetching top tracks:', error);
+    console.error('Error in Spotify diagnostics:', error);
     
-    // If the error is related to authorization, return an appropriate error status
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      return {
-        statusCode: error.response.status,
-        headers,
-        body: JSON.stringify({ error: 'Authorization failed, check your Spotify tokens' })
-      };
-    }
-    
-    // For other API errors
-    if (error.response) {
-      return {
-        statusCode: error.response.status,
-        headers,
-        body: JSON.stringify({ error: `Spotify API error: ${error.response.statusText}` })
-      };
-    }
-    
-    // For network errors or other cases
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Failed to fetch top tracks' })
+      body: JSON.stringify({ 
+        error: 'Failed to run diagnostics',
+        message: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      })
     };
   }
 };
