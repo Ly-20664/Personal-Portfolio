@@ -259,3 +259,44 @@ h2 {
     border-radius: 8px;
     color: var(--accent);
 }
+
+/* Social Icons */
+.social-icons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.social-icons a {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: rgba(64, 224, 208, 0.1);
+    color: var(--accent, #40E0D0);
+    font-size: 24px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    text-decoration: none;
+    margin: 5px;
+}
+
+.social-icons a span {
+    font-size: 12px;
+    margin-top: 5px;
+    color: var(--text-secondary, #a8b2d1);
+    transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+    transform: translateY(-5px);
+    background-color: var(--accent, #40E0D0);
+    color: var(--bg-secondary, #0a192f);
+}
+
+.social-icons a:hover span {
+    color: var(--bg-secondary, #0a192f);
+}

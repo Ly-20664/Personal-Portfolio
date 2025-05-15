@@ -231,8 +231,8 @@ nav {
     overflow: visible;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     height: fit-content;
-    max-height: 500px; /* Increased height */
-    max-width: 800px; /* Increased to fit three tracks */
+    max-height: 750px; /* Increased height */
+    max-width: 950px; /* Increased to fit three tracks */
 }
 
 .spotify-dashboard h2 {
@@ -389,6 +389,43 @@ nav {
 .resume-content {
     max-width: 1000px;
     margin: 0 auto;
+}
+
+.resume-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.resume-download {
+    background-color: var(--bg-secondary);
+    color: var(--accent);
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid var(--accent);
+}
+
+.resume-download:hover {
+    background-color: var(--accent);
+    color: var(--bg-secondary);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(64, 224, 208, 0.3);
+}
+
+.resume-download i {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.resume-download:hover i {
+    transform: scale(1.1);
+    animation: bounce 1.5s infinite;
 }
 
 .resume-section {
@@ -679,8 +716,10 @@ nav {
 .social-links {
     padding: 0 20px;
     text-align: center;
-    max-width: 800px;
+    max-width: 1000px; /* Increased from 800px to fit all icons */
+    width: 100%;
     margin: 0 auto;
+    overflow-x: auto; /* Allow horizontal scrolling if needed */
 }
 
 .contact-content.centered {
@@ -696,7 +735,7 @@ nav {
     gap: 30px;
     margin-top: 20px;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* Prevent wrapping to keep all icons on one line */
 }
 
 .social-icons a {
@@ -704,12 +743,12 @@ nav {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 120px;
-    height: 120px;
+    width: 100px; /* Reduced from 120px */
+    height: 100px; /* Reduced from 120px */
     border-radius: 50%;
     background-color: var(--bg-secondary);
     color: var(--accent);
-    font-size: 32px;
+    font-size: 28px; /* Reduced from 32px */
     transition: transform 0.3s ease, background-color 0.3s ease;
     text-decoration: none;
     margin: 10px;
@@ -729,6 +768,114 @@ nav {
 
 .social-icons a:hover span {
     color: var(--bg-secondary);
+}
+
+/* Resume Icon and Download Button */
+.resume-icon {
+    width: 30px;
+    height: 30px;
+    color: rgba(64, 224, 208, 0.9);
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 28px;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative;
+    overflow: visible;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.resume-icon::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    bottom: -2px;
+    left: -2px;
+    border: 1px solid rgba(64, 224, 208, 0.3);
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.resume-icon:hover::before {
+    opacity: 1;
+}
+
+.resume-link {
+    position: relative;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: var(--bg-secondary);
+    color: var(--accent);
+    font-size: 32px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    text-decoration: none;
+    margin: 10px;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.resume-link:hover {
+    transform: translateY(-5px);
+    background-color: var(--accent);
+    color: var(--bg-secondary);
+}
+
+.resume-link:hover .fa-file-alt {
+    color: var(--bg-secondary);
+    animation: pulse 1.5s infinite;
+    transform: scale(1.1);
+}
+
+.resume-link:hover span {
+    color: var(--bg-secondary);
+}
+
+.resume-link::after {
+    content: "↓";
+    position: absolute;
+    bottom: 25px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.resume-link:hover::after {
+    opacity: 1;
+    transform: translateY(3px);
+    animation: bounce 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-5px);
+    }
+    60% {
+        transform: translateY(-3px);
+    }
 }
 
 /* Footer */
@@ -770,6 +917,48 @@ footer {
     
     .project-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .resume-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .social-icons {
+        gap: 15px; /* Reduce gap on mobile */
+    }
+    
+    .social-icons a {
+        width: 75px; /* Even smaller on mobile */
+        height: 75px;
+        font-size: 22px;
+        margin: 5px;
+    }
+    
+    .social-icons a span {
+        font-size: 10px; /* Smaller text on mobile */
+    }
+    
+    .resume-icon {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .social-icons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 icons per row on very small screens */
+        gap: 10px;
+    }
+    
+    .social-icons a {
+        width: 60px;
+        height: 60px;
+        font-size: 18px;
     }
 }
 
@@ -907,7 +1096,7 @@ canvas {
 .track-card-container {
     position: relative;
     width: 100%;
-    height: 380px;
+    height: 360px;
     display: flex;
     justify-content: center;
     align-items: center;
