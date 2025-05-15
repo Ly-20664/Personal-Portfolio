@@ -53,9 +53,6 @@ exports.handler = async function(event, context) {
     'Content-Type': 'application/json' // Explicitly set content type to JSON - CRITICAL for preventing HTML errors
   };
   
-  // CRITICAL ERROR PREVENTION: Wrap the entire function in a try/catch
-  try {
-  
   // Handle preflight OPTIONS request
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -63,7 +60,9 @@ exports.handler = async function(event, context) {
       headers,
       body: ''
     };
-  }  try {
+  }
+  
+  try {
     console.log('Attempting to get access token');
     // Get access token
     const accessToken = await getAccessToken();
@@ -80,7 +79,9 @@ exports.handler = async function(event, context) {
       headers: {
         'Authorization': `Bearer ${accessToken}`
       }
-    });    // Format the response to match the expected structure for the SpotifyDisplay component
+    });
+    
+    // Format the response to match the expected structure for the SpotifyDisplay component
     console.log('Spotify API response received, formatting data');
     
     // Safely handle the response data
@@ -119,7 +120,8 @@ exports.handler = async function(event, context) {
       } else {
         console.error('Unexpected response format from Spotify API', JSON.stringify(response.data).substring(0, 200));
         throw new Error('Invalid response format from Spotify API');
-      }    } catch (formatError) {
+      }
+    } catch (formatError) {
       console.error('Error formatting tracks:', formatError);
       // Don't throw the error - return an empty array instead to prevent HTML error responses
       formattedTracks = [];
@@ -130,7 +132,8 @@ exports.handler = async function(event, context) {
       statusCode: 200,
       headers,
       body: JSON.stringify(formattedTracks)
-    };  } catch (error) {
+    };
+  } catch (error) {
     console.error('Error in recent-tracks function:', error);
     
     // CRITICAL FIX: Always set content type to application/json to prevent HTML error pages
@@ -138,41 +141,19 @@ exports.handler = async function(event, context) {
     headers['Content-Type'] = 'application/json';
     
     // IMPORTANT: For ANY error, return a 200 status with empty array
-    // This ensures the frontend always gets valid JSON it can handle    console.log('Returning empty array due to error');
-    return {
-      statusCode: 200,  // Always return 200 OK to prevent Netlify error pages
-      headers,
-      body: JSON.stringify([])  // Empty array that the frontend can handle
-    };
-  } catch (catastrophicError) {
-    // Last-resort error handling - if anything goes wrong in our error handling
-    // This ensures we ALWAYS return valid JSON, no matter what
-    console.error('CATASTROPHIC ERROR:', catastrophicError);
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify([])
-    };
-  }
+    // This ensures the frontend always gets valid JSON it can handle
+    console.log('Returning empty array due to error');
+    
+    // Check if it's a response error from Spotify
+    if (error.response) {
       return {
-        statusCode: error.response.status,
+        statusCode: 200, // Return 200 instead of error code
         headers,
-        body: JSON.stringify({ 
-          error: `Spotify API error: ${error.response.statusText}`, 
-          details: error.message
-        })
+        body: JSON.stringify([]) // Empty array instead of error object
       };
     }
     
     // For network errors or other cases
-    console.log('General error detected, returning empty array');
-    
-    // IMPORTANT: Instead of returning an error for the frontend to handle,
-    // return an empty array which the SpotifyDisplay component can safely process
-    // This prevents the JSON parsing error in the frontend
     return {
       statusCode: 200,  // Return 200 OK with empty results instead of an error
       headers,
