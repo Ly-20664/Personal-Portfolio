@@ -190,9 +190,8 @@ async function loadRecentTracks() {
     
     try {
         spotifyEmbedsContainer.innerHTML = '<div class="loading-message">Loading recent tracks...</div>';
-        
-        // Use the public endpoint that doesn't require authentication
-        const response = await fetch('/api/spotify/public/recent-tracks');
+          // Use the Netlify function endpoint
+        const response = await fetch('/.netlify/functions/recent-tracks');
         
         if (response.status === 429) {
             // Rate limiting - show friendly message with retry button

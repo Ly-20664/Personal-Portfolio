@@ -28,6 +28,11 @@
   from = "/api/top-tracks"
   to = "/.netlify/functions/top-tracks"
   status = 200
+  
+[[redirects]]
+  from = "/api/spotify/public/recent-tracks"
+  to = "/.netlify/functions/recent-tracks"
+  status = 200
 
 [[redirects]]
   from = "/*"

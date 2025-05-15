@@ -28,8 +28,10 @@ function App() {
             setLoading(true);
             const response = await fetch('/.netlify/functions/recent-tracks');
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to load tracks');
+                // Improved error handling - get the raw text to see HTML errors
+                const text = await response.text();
+                console.error('Function returned non-200:', response.status, text);
+                throw new Error(`Fetch failed: ${response.status}`);
             }
             const data = await response.json();
             
