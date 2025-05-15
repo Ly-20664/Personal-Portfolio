@@ -26,7 +26,11 @@ function App() {
     }, []);    async function fetchTracks() {
         try {
             setLoading(true);
-            const response = await fetch('/.netlify/functions/recent-tracks');
+            // Use different endpoints based on environment
+            const isNetlify = window.location.hostname.includes('netlify.app') || 
+                            window.location.hostname === 'justinly.me';
+            const endpoint = isNetlify ? '/.netlify/functions/recent-tracks' : '/api/spotify/public/recent-tracks';
+            const response = await fetch(endpoint);
             if (!response.ok) {
                 // Improved error handling - get the raw text to see HTML errors
                 const text = await response.text();

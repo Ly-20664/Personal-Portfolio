@@ -189,9 +189,11 @@ async function loadRecentTracks() {
     const spotifyEmbedsContainer = document.getElementById('spotify-embeds');
     
     try {
-        spotifyEmbedsContainer.innerHTML = '<div class="loading-message">Loading recent tracks...</div>';
-          // Use the Netlify function endpoint
-        const response = await fetch('/.netlify/functions/recent-tracks');
+        spotifyEmbedsContainer.innerHTML = '<div class="loading-message">Loading recent tracks...</div>';        // Use different endpoints based on environment
+        const isNetlify = window.location.hostname.includes('netlify.app') || 
+                        window.location.hostname === 'justinly.me';
+        const endpoint = isNetlify ? '/.netlify/functions/recent-tracks' : '/api/spotify/public/recent-tracks';
+        const response = await fetch(endpoint);
         
         if (response.status === 429) {
             // Rate limiting - show friendly message with retry button
