@@ -23,12 +23,10 @@ function App() {
                 iframe.src = 'about:blank';
             });
         };
-    }, []);
-
-    async function fetchTracks() {
+    }, []);    async function fetchTracks() {
         try {
             setLoading(true);
-            const response = await fetch('/api/spotify/tracks');
+            const response = await fetch('/.netlify/functions/recent-tracks');
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to load tracks');
