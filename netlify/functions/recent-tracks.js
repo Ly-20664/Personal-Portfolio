@@ -81,57 +81,15 @@ exports.handler = async function(event, context) {
       }
     });
     
-    // Format the response to match the expected structure for the SpotifyDisplay component
-    console.log('Spotify API response received, formatting data');
-    
-    // Safely handle the response data
-    let formattedTracks = [];
-    
-    try {
-      // Validate response structure before processing
-      if (!response || !response.data) {
-        console.error('Empty response from Spotify API');
-        throw new Error('Empty response from Spotify API');
-      }
-      
-      // Log response structure for debugging
-      console.log(`Response data structure: ${JSON.stringify(Object.keys(response.data))}`);
-      
-      if (response.data && response.data.items && Array.isArray(response.data.items)) {
-        console.log(`Found ${response.data.items.length} track items to format`);
-        
-        formattedTracks = response.data.items
-          .filter(item => item && item.track) // Ensure item and track exist
-          .map(item => {
-            // Safely access nested properties with fallbacks
-            const track = item.track;
-            return {
-              songID: track.id || `unknown-${Math.random().toString(36).substring(2, 9)}`,
-              artist: track.artists && track.artists[0] ? track.artists[0].name : 'Unknown Artist',
-              title: track.name || 'Unknown Track',
-              album: track.album && track.album.name ? track.album.name : 'Unknown Album',
-              albumArt: track.album && track.album.images && track.album.images[0] ? 
-                        track.album.images[0].url : 'https://via.placeholder.com/300',
-              uri: track.uri || ''
-            };
-          });
-          
-        console.log(`Successfully formatted ${formattedTracks.length} tracks`);
-      } else {
-        console.error('Unexpected response format from Spotify API', JSON.stringify(response.data).substring(0, 200));
-        throw new Error('Invalid response format from Spotify API');
-      }
-    } catch (formatError) {
-      console.error('Error formatting tracks:', formatError);
-      // Don't throw the error - return an empty array instead to prevent HTML error responses
-      formattedTracks = [];
-      console.log('Returning empty array due to formatting error');
-    }
-      return {
+    // Simply return the raw response data which already has the right structure
+    // This is the data directly from Spotify API with { items: [{track: {...}}] } shape
+    console.log('Returning raw Spotify API response data');
+    return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ items: formattedTracks })
+      body: JSON.stringify(response.data)
     };
+    
   } catch (error) {
     console.error('Error in recent-tracks function:', error);
     
@@ -142,7 +100,8 @@ exports.handler = async function(event, context) {
     // IMPORTANT: For ANY error, return a 200 status with empty array
     // This ensures the frontend always gets valid JSON it can handle
     console.log('Returning empty array due to error');
-      // Check if it's a response error from Spotify
+    
+    // Check if it's a response error from Spotify
     if (error.response) {
       return {
         statusCode: 200, // Return 200 instead of error code
