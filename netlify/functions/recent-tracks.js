@@ -127,11 +127,10 @@ exports.handler = async function(event, context) {
       formattedTracks = [];
       console.log('Returning empty array due to formatting error');
     }
-    
-    return {
+      return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(formattedTracks)
+      body: JSON.stringify({ items: formattedTracks })
     };
   } catch (error) {
     console.error('Error in recent-tracks function:', error);
@@ -143,13 +142,12 @@ exports.handler = async function(event, context) {
     // IMPORTANT: For ANY error, return a 200 status with empty array
     // This ensures the frontend always gets valid JSON it can handle
     console.log('Returning empty array due to error');
-    
-    // Check if it's a response error from Spotify
+      // Check if it's a response error from Spotify
     if (error.response) {
       return {
         statusCode: 200, // Return 200 instead of error code
         headers,
-        body: JSON.stringify([]) // Empty array instead of error object
+        body: JSON.stringify({ items: [] }) // Empty items array instead of error object
       };
     }
     
@@ -157,7 +155,7 @@ exports.handler = async function(event, context) {
     return {
       statusCode: 200,  // Return 200 OK with empty results instead of an error
       headers,
-      body: JSON.stringify([])  // Empty array instead of error object
+      body: JSON.stringify({ items: [] })  // Empty items array instead of error object
     };
   }
 };
