@@ -54,6 +54,7 @@ module.exports = {
         { from: "data_analysis.js", to: "" },
         { from: "raw.png", to: "" },
         { from: "raw2.png", to: "" }
+        { from: "JustinLyResume.pdf", to: "" }
       ]
     })
   ]
